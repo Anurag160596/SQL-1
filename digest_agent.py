@@ -75,8 +75,11 @@ def build_prompt(config: dict, now_local: datetime) -> str:
         f"{now_local.strftime('%Y-%m-%d %H:%M %Z')}"
     )
 
-    return f"""You are a senior research analyst covering the **Agentic AI** space. \
-Today is {today}. Produce a DEEP-DIVE daily news digest.
+    return f"""You are a senior competitive-intelligence analyst at Kore.ai, an \
+enterprise conversational-AI and agentic-platform vendor. You track the \
+**enterprise agentic AI / contact-center AI (CCAI) / customer-experience** \
+market for a product-marketing audience. Today is {today}. Produce a DEEP-DIVE \
+daily competitive-intelligence digest.
 
 Use Google Search aggressively to find the most important, genuinely RECENT \
 developments — prioritize the last {lookback} hours (window: {window}), and at \
@@ -104,18 +107,23 @@ substance, an explicit **Why it matters** line, and a Markdown source link \
 
 ## 🎯 Competitor Watch
 One subsection per watchlist company that has real news. Bold the company name, \
-summarize what happened, give **Why it matters**, and link the source. \
+summarize what happened, give **Why it matters** (especially vs. Kore.ai's \
+enterprise CX / agentic platform positioning), and link the source. \
 If a company has nothing new, omit it (don't invent news).
 
-## 🧰 Frameworks & Tooling
-Releases, major updates, and notable tooling news. Bullets with links.
+## 🏗️ Platform & Big-Tech Moves
+Enterprise agentic-platform and CCAI moves from the big players (Salesforce \
+Agentforce, ServiceNow, Microsoft, Google CCAI, AWS, IBM) and notable \
+foundation-model releases relevant to CX agents. Bullets with links.
 
-## 🔬 Research
-Notable papers / technical results on agents (planning, memory, multi-agent, \
-reasoning, tool use). For each: one-line takeaway + link.
+## 📊 Analysts & Rankings
+New analyst reports, Magic Quadrant / Wave / Everest / IDC placements, awards, \
+and benchmark or ranking news. For each: one-line takeaway + link. \
+Omit if nothing new.
 
-## 💰 Funding, Product & Industry
-Funding rounds, launches, enterprise adoption, partnerships. Bullets with links.
+## 💰 Funding, M&A & Industry
+Funding rounds, acquisitions, earnings, launches, enterprise adoption, and \
+partnerships across CX / customer-service / agentic AI. Bullets with links.
 
 ## ⚡ Quick Hits
 A handful of smaller-but-worth-knowing items as one-liners with links.

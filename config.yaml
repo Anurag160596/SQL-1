@@ -30,10 +30,11 @@ timezone: "Asia/Kolkata"
 # Broad topic areas the agent sweeps every day.
 # ------------------------------------------------------------
 topics:
-  - "New model & lab releases relevant to agents (Anthropic, OpenAI, Google DeepMind, Meta, Mistral, xAI, Cohere, etc.) — tool use, computer use, long-horizon reasoning, agent capabilities"
-  - "Agent frameworks & tooling (LangChain / LangGraph, CrewAI, AutoGen, LlamaIndex, Model Context Protocol, agent SDKs, orchestration, evaluation & observability tooling)"
-  - "Notable research papers (arXiv and labs) on agent planning, memory, multi-agent systems, RAG, reasoning, and tool use"
-  - "Funding rounds, product launches, enterprise adoption, partnerships, and broader industry moves in agentic AI"
+  - "Enterprise conversational AI & contact-center AI (CCAI): AI agents/virtual agents, voice AI, agent-assist, and CX automation platforms — product launches, customer wins, pricing moves"
+  - "Agentic AI platforms for the enterprise (Salesforce Agentforce, ServiceNow, Microsoft Copilot/Copilot Studio, Google CCAI, AWS, IBM watsonx Orchestrate) — releases and positioning"
+  - "Foundation-model & lab releases relevant to enterprise agents (OpenAI, Anthropic, Google DeepMind, Meta, Mistral) — tool use, voice, long-horizon reasoning, and what they mean for CX agents"
+  - "Analyst moves that matter in this market (Gartner MQ, Forrester Wave, Everest, IDC, Opus Research) — new reports, leader placements, rankings"
+  - "Funding rounds, M&A, earnings, partnerships, and enterprise adoption across customer-service / CX / agentic AI vendors"
 
 # ------------------------------------------------------------
 # Competitor / company watchlist — the agent PRIORITIZES news
@@ -47,13 +48,29 @@ topics:
 # ------------------------------------------------------------
 watchlist:
   - name: "Sierra"
-    focus: "product launches, enterprise customers, funding"
-  - name: "Cognition (Devin)"
-    focus: "product, benchmarks, hiring, funding"
+    focus: "conversational AI agents, enterprise CX customers, funding, product launches"
   - name: "Decagon"
-    focus: "product, customers, funding"
-  - name: "Adept"
-    focus: "anything notable"
-  - name: "Imbue"
-    focus: "anything notable"
+    focus: "AI customer-service agents, enterprise wins, funding, product"
+  - name: "Cresta"
+    focus: "contact-center AI, agent-assist, AI agents, enterprise customers, funding"
+  - name: "PolyAI"
+    focus: "voice AI agents, enterprise CX wins, funding, product, analyst recognition"
+  - name: "Parloa"
+    focus: "AI agent platform, contact-center deployments, funding, partnerships, analyst recognition"
+  - name: "Genesys"
+    focus: "Cloud CX, AI agents/Copilot, partnerships, earnings, IPO, analyst recognition"
+  - name: "NICE (Cognigy)"
+    focus: "NICE CXone, Cognigy acquisition/integration, AI agents, enterprise deals, earnings"
+  - name: "Five9"
+    focus: "AI agents, contact-center platform, partnerships, enterprise wins, earnings"
+  - name: "Glean"
+    focus: "enterprise AI agents, work assistants, funding, product, enterprise adoption"
+  - name: "Moveworks"
+    focus: "enterprise AI agents/ITSM & employee support, ServiceNow acquisition, product"
+  - name: "Agentforce (Salesforce)"
+    focus: "Agentforce releases, pricing, customer adoption, agentic CRM positioning"
+  - name: "ServiceNow Agent Platform"
+    focus: "AI Agents/Now Assist, agentic workflow platform, releases, enterprise adoption"
+  - name: "IBM Agent Platform"
+    focus: "watsonx Orchestrate / agentic AI, releases, partnerships, enterprise adoption"
 # ===== END WATCHLIST =====

@@ -1,0 +1,44 @@
+name: Undercut Rapid Alerts
+
+on:
+  schedule:
+    # Every 4 hours. Short-window sweep; emails ONLY when a high-value
+    # competitor trigger is genuinely breaking (else it sends nothing).
+    - cron: "0 */4 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Generate but do NOT send email"
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: undercut-alerts
+  cancel-in-progress: false
+
+jobs:
+  alerts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run rapid alert sweep
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          DIGEST_MODE: alerts
+          DIGEST_DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: python digest_agent.py

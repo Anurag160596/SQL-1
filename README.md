@@ -2,14 +2,21 @@
 
 ## 🤖 Agentic AI Daily Digest
 
-A scheduled agent that emails you a **deep-dive daily digest** of news across the
-Agentic AI space — model & lab releases, agent frameworks & tooling, research
-papers, funding/product/industry moves, plus a **competitor watchlist** you control.
+An **undercut engine** for the enterprise CX / contact-center / agentic-AI market.
+It emails a **deep-dive daily digest** that doesn't just report competitor news — it
+turns each development into an **attack angle + Kore.ai counter + team-tagged play**
+(Sales / PMM / Analyst Relations / Product). A separate **rapid-alert sweep** fires an
+immediate email when a high-value competitor event breaks.
 
 - **Brain:** Gemini with Google Search grounding (live web research).
+- **Memory:** a [`knowledge_base/`](knowledge_base/) of Kore.ai positioning + living
+  competitor battlecards, injected into every run.
 - **Delivery:** email via [Resend](https://resend.com).
-- **Schedule:** GitHub Actions cron at `02:30 UTC` (~08:00 IST), daily.
-- **Archive:** every digest is committed to [`digests/`](digests/) as `YYYY-MM-DD.md`.
+- **Daily digest:** GitHub Actions cron at `02:30 UTC` (~08:00 IST). Hero section:
+  **⚔️ Undercut Opportunities.** Archived to [`digests/`](digests/) as `YYYY-MM-DD.md`.
+- **Rapid alerts:** GitHub Actions cron every 4 hours (`DIGEST_MODE=alerts`); emails
+  **only** when a high-value trigger (price change, outage, exec exit, lost logo,
+  analyst downgrade, M&A) is genuinely breaking — otherwise sends nothing.
 
 ### How it works
 
@@ -72,7 +79,17 @@ python digest_agent.py        # add DIGEST_DRY_RUN=1 to skip the email
 
 | File | Purpose |
 |------|---------|
-| `config.yaml` | Topics, competitor watchlist, recipients, model — your control panel. |
-| `digest_agent.py` | The agent: research → markdown → save → email. |
-| `.github/workflows/daily-digest.yml` | Daily cron + manual trigger. |
-| `digests/` | Dated archive of every digest. |
+| `config.yaml` | Topics, watchlist, **undercut levers & alert triggers**, recipients, model. |
+| `digest_agent.py` | The agent: research → undercut analysis → email (daily + alerts modes). |
+| `knowledge_base/` | Kore.ai positioning + living competitor battlecards (the memory). |
+| `.github/workflows/daily-digest.yml` | Daily digest cron + manual trigger. |
+| `.github/workflows/undercut-alerts.yml` | Rapid-alert sweep every 4 hours. |
+| `digests/` | Dated archive of every daily digest. |
+
+### Run modes
+
+| Mode | How | What it does |
+|------|-----|--------------|
+| Daily digest | default (`DIGEST_MODE=daily`) | Full deep-dive with the Undercut Opportunities hero section; archived + emailed. |
+| Rapid alerts | `DIGEST_MODE=alerts` | Short-window sweep; emails only on a breaking high-value trigger, else nothing. |
+| Dry run | `DIGEST_DRY_RUN=1` | Generate without sending email (works in either mode). |

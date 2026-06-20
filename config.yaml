@@ -23,6 +23,36 @@ model:
 # How far back to look for "news" each run.
 lookback_hours: 24
 
+# ------------------------------------------------------------
+# Undercut engine — the openings the agent hunts for and how it
+# frames competitor news into actionable plays.
+# ------------------------------------------------------------
+undercut:
+  # Weaknesses the agent actively looks for across every competitor.
+  levers:
+    - "Pricing & TCO: price hikes, consumption-pricing pain, hidden costs, unpredictable total cost of ownership"
+    - "Proof & validation gaps: missing/withdrawn analyst recognition (Gartner/Forrester/Everest/IDC), thin customer evidence, weak or negative third-party reviews (G2, Peer Insights, TrustRadius)"
+    - "Channel & coverage gaps: voice-only or voice-first limits vs. true omnichannel, narrow geographic reach, narrow product scope"
+    - "Reliability, governance, security & compliance: outages, incidents, breaches, lack of determinism/auditability, compliance failures"
+    - "Any other exploitable opening: exec departures, layoffs, financial distress, lost/churned marquee customers, delayed or underwhelming launches, negative press, partnership breakups"
+
+  # High-value, time-sensitive events that justify an IMMEDIATE alert email
+  # (used by the rapid-alert run mode, not the daily digest).
+  alert_triggers:
+    - "Pricing change or major repackaging"
+    - "Outage, security incident, or data breach"
+    - "Executive departure or leadership shakeup"
+    - "Lost, churned, or publicly unhappy marquee customer"
+    - "Analyst downgrade, exclusion, or critical report"
+    - "Layoffs, down-round, or financial distress"
+    - "Major acquisition, merger, or partnership (or its collapse)"
+
+# Rapid-alert mode (DIGEST_MODE=alerts): short-window sweep that emails ONLY
+# when a high-value trigger above is genuinely breaking.
+alerts:
+  lookback_hours: 6
+  subject_prefix: "🚨 Undercut Alert —"
+
 # Timezone used to date the digest and the morning run.
 timezone: "Asia/Kolkata"
 

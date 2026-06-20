@@ -87,6 +87,10 @@ def build_prompt(config: dict, now_local: datetime, knowledge_base: str = "") ->
     else:
         watch_lines = "  - (none specified)"
 
+    undercut = config.get("undercut", {})
+    levers = undercut.get("levers", [])
+    lever_lines = "\n".join(f"  - {l}" for l in levers) or "  - (none specified)"
+
     today = now_local.strftime("%A, %d %B %Y")
     window = (
         f"{since.strftime('%Y-%m-%d %H:%M %Z')} to "
@@ -114,6 +118,10 @@ enterprise conversational-AI and agentic-platform vendor. You track the \
 market for a product-marketing audience. Today is {today}. Produce a DEEP-DIVE \
 daily competitive-intelligence digest.
 
+Your job is not just to report news — it is to find **openings to undercut these \
+competitors** and hand our teams (Sales, Product Marketing, Analyst Relations, \
+Product) something they can act on today.
+
 Use Google Search aggressively to find the most important, genuinely RECENT \
 developments — prioritize the last {lookback} hours (window: {window}), and at \
 most the last 3 days. Do not include stale or undated items as if they were news. \
@@ -126,12 +134,34 @@ If a section has nothing genuinely new, say so briefly rather than padding.
 Prioritize and specifically search for news about each of these companies:
 {watch_lines}
 
+## Undercut levers — actively hunt for these openings across every competitor
+These are the weaknesses to look for. Any new evidence of one is an opening:
+{lever_lines}
+
 ## Output format (Markdown only — no preamble, no "here is your digest")
 Start directly with an H1 title line. Structure:
 
 # Agentic AI Daily Digest — {today}
 
-**TL;DR** — 3-5 bullet points capturing the single most important things today.
+**TL;DR** — 3-5 bullet points capturing the single most important things today, \
+leading with the sharpest undercut opportunity.
+
+## ⚔️ Undercut Opportunities (the hero section — lead with this)
+For each genuinely new competitor development that creates an opening, write an entry. \
+Only include real openings backed by a source — never manufacture one. If nothing is \
+actionable today, say so in one line. Format each entry as:
+
+- **[Competitor] — <one-line event>** — [Source](url)
+  - **Lever:** which weakness this exposes (Pricing/TCO · Proof/validation gap · \
+Channel/coverage gap · Reliability/governance · or other — name it)
+  - **Angle:** the attack narrative — how to frame this against the competitor
+  - **Kore.ai counter:** the specific proof point/capability to deploy (ABL determinism, \
+true omnichannel, multi-model routing, 6x analyst Leader status, etc. — cite the KB)
+  - **Plays:** concrete, team-tagged actions —
+    🟦 **Sales** (battlecard line or trap discovery question) ·
+    🟩 **PMM** (campaign/content/comparison angle) ·
+    🟪 **AR** (what to feed Gartner/Forrester/Everest/IDC) ·
+    🟧 **Product** (gap to close to neutralize them)
 
 ## 🏆 Top Stories
 The 2-4 biggest developments. For EACH: a bold headline, 2-4 sentences of \
@@ -233,7 +263,9 @@ def save_digest(markdown_text: str, now_local: datetime) -> Path:
     return out_path
 
 
-def send_email(config: dict, markdown_text: str, now_local: datetime) -> None:
+def send_email(
+    config: dict, markdown_text: str, now_local: datetime, subject: str | None = None
+) -> None:
     api_key = os.environ.get("RESEND_API_KEY")
     if not api_key:
         fail("RESEND_API_KEY is not set.")
@@ -259,8 +291,9 @@ def send_email(config: dict, markdown_text: str, now_local: datetime) -> None:
 </style></head><body>{html_body}</body></html>"""
 
     email_cfg = config.get("email", {})
-    subject_prefix = email_cfg.get("subject_prefix", "🤖 Agentic AI Daily —")
-    subject = f"{subject_prefix} {now_local.strftime('%A, %d %b %Y')}"
+    if subject is None:
+        subject_prefix = email_cfg.get("subject_prefix", "🤖 Agentic AI Daily —")
+        subject = f"{subject_prefix} {now_local.strftime('%A, %d %b %Y')}"
     sender = email_cfg.get("from", "Agentic AI Digest <onboarding@resend.dev>")
     recipients = config.get("recipients", [])
     if not recipients:
@@ -285,6 +318,86 @@ def send_email(config: dict, markdown_text: str, now_local: datetime) -> None:
     print(f"Email sent to {', '.join(recipients)} (Resend id: {resp.json().get('id')})")
 
 
+NO_ALERTS_SENTINEL = "NO_ALERTS"
+
+
+def build_alert_prompt(config: dict, now_local: datetime, knowledge_base: str) -> str:
+    """Short-window prompt: only surface HIGH-VALUE breaking undercut events."""
+    alerts_cfg = config.get("alerts", {})
+    lookback = int(alerts_cfg.get("lookback_hours", 6))
+    since = now_local - timedelta(hours=lookback)
+    watchlist = config.get("watchlist", [])
+    names = ", ".join(w.get("name", "?") for w in watchlist) or "(none)"
+
+    triggers = config.get("undercut", {}).get("alert_triggers", [])
+    trigger_lines = "\n".join(f"  - {t}" for t in triggers) or "  - (none specified)"
+
+    window = (
+        f"{since.strftime('%Y-%m-%d %H:%M %Z')} to "
+        f"{now_local.strftime('%Y-%m-%d %H:%M %Z')}"
+    )
+
+    kb_block = (
+        f"\n<knowledge_base>\n{knowledge_base}\n</knowledge_base>\n"
+        if knowledge_base
+        else ""
+    )
+
+    return f"""You are a competitive-intelligence analyst at Kore.ai running a \
+RAPID ALERT sweep. Only surface HIGH-VALUE, time-sensitive, breaking events about \
+our competitors that just happened in the window {window} (last {lookback} hours). \
+This is NOT the daily digest — be ruthless. Routine product blog posts, minor \
+updates, and anything older than the window do NOT qualify.
+
+Competitors: {names}
+
+An event qualifies ONLY if it is one of these high-value triggers and is genuinely \
+breaking:
+{trigger_lines}
+{kb_block}
+Search the web to verify. If — and only if — you find one or more qualifying events, \
+output Markdown starting with an H1 "# 🚨 Undercut Alert", then for EACH event:
+- **[Competitor] — <event>** — [Source](url)
+  - **Why it's urgent:** one line
+  - **Undercut play:** the single sharpest action to take now, tagged 🟦 Sales / \
+🟩 PMM / 🟪 AR / 🟧 Product
+
+If there are NO qualifying high-value events in the window, output EXACTLY this and \
+nothing else:
+{NO_ALERTS_SENTINEL}
+
+Never fabricate events or URLs. When in doubt, output {NO_ALERTS_SENTINEL}."""
+
+
+def run_daily(config: dict, now_local: datetime, knowledge_base: str, dry_run: bool) -> None:
+    prompt = build_prompt(config, now_local, knowledge_base)
+    digest = generate_digest(config, prompt)
+    save_digest(digest, now_local)
+    if dry_run:
+        print("DIGEST_DRY_RUN set — skipping email.")
+        return
+    send_email(config, digest, now_local)
+    print("Done.")
+
+
+def run_alerts(config: dict, now_local: datetime, knowledge_base: str, dry_run: bool) -> None:
+    prompt = build_alert_prompt(config, now_local, knowledge_base)
+    result = generate_digest(config, prompt)
+    # Sentinel check: strip any trailing grounding-sources block before comparing.
+    head = result.split("\n", 1)[0].strip()
+    if result.strip() == NO_ALERTS_SENTINEL or head == NO_ALERTS_SENTINEL:
+        print("No high-value alert events found — nothing to send.")
+        return
+    print("Alert-worthy event(s) found.")
+    if dry_run:
+        print("DIGEST_DRY_RUN set — skipping alert email.\n\n" + result)
+        return
+    subject_prefix = config.get("alerts", {}).get("subject_prefix", "🚨 Undercut Alert —")
+    subject = f"{subject_prefix} {now_local.strftime('%a %d %b, %H:%M')}"
+    send_email(config, result, now_local, subject=subject)
+    print("Alert email sent.")
+
+
 def main() -> None:
     config = load_config()
     tz_name = config.get("timezone", "Asia/Kolkata")
@@ -293,16 +406,15 @@ def main() -> None:
     knowledge_base = load_knowledge_base()
     if knowledge_base:
         print(f"Loaded knowledge base ({len(knowledge_base)} chars).")
-    prompt = build_prompt(config, now_local, knowledge_base)
-    digest = generate_digest(config, prompt)
-    save_digest(digest, now_local)
 
     dry_run = os.environ.get("DIGEST_DRY_RUN", "").lower() in {"1", "true", "yes"}
-    if dry_run:
-        print("DIGEST_DRY_RUN set — skipping email.")
-        return
-    send_email(config, digest, now_local)
-    print("Done.")
+    mode = os.environ.get("DIGEST_MODE", "daily").strip().lower()
+    print(f"Run mode: {mode}")
+
+    if mode == "alerts":
+        run_alerts(config, now_local, knowledge_base, dry_run)
+    else:
+        run_daily(config, now_local, knowledge_base, dry_run)
 
 
 if __name__ == "__main__":

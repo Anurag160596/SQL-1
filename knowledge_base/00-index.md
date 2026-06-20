@@ -10,7 +10,14 @@ so each digest is grounded in who we are, who we track, and how we frame the mar
 |------|--------------|
 | `00-index.md` | This file. |
 | `kore-ai.md` | Kore.ai's own positioning: platform, ABL, analyst standing, key terms. |
-| `competitors.md` | Profiles of all 13 tracked competitors, with documented intel. |
+| `competitors.md` | **Living battlecards** for all 13 competitors, built to undercut. |
+
+## Battlecard format (competitors.md)
+
+Each competitor follows: **What it is → Exploitable weaknesses (by lever) →
+Kore.ai counter & evidence → Sales trap questions → Undercut triggers to watch.**
+This is what feeds the daily digest's **⚔️ Undercut Opportunities** section and the
+rapid-alert sweep. Update a card and the next run uses it.
 
 ## How to maintain it
 

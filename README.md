@@ -27,10 +27,17 @@ Everything lives in [`config.yaml`](config.yaml) — no code changes needed:
 
 - `recipients` — who gets the email.
 - `topics` — the broad areas swept daily.
-- `watchlist` — **your competitor list.** Replace the starter entries between the
-  `ADD YOURS HERE` / `END WATCHLIST` markers. Each entry has a `name` and a `focus`
+- `watchlist` — **your competitor list.** Each entry has a `name` and a `focus`
   (what to emphasize, or `"anything notable"`).
 - `model`, `lookback_hours`, `timezone` — tuning knobs.
+
+### Knowledge base (the agent's "memory")
+
+[`knowledge_base/`](knowledge_base/) holds standing context — Kore.ai's positioning
+(`kore-ai.md`) and profiles of all tracked competitors (`competitors.md`). The agent
+loads every `.md` file there and injects it into the prompt, so each digest is framed
+by who we are, who we track, and each rival's documented strengths/gaps. Edit the
+markdown directly to update the memory — no code changes needed.
 
 ### Setup (one-time)
 

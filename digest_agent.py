@@ -32,6 +32,8 @@ import yaml
 ROOT = Path(__file__).resolve().parent
 CONFIG_PATH = ROOT / "config.yaml"
 DIGESTS_DIR = ROOT / "digests"
+KB_DIR = ROOT / "knowledge_base"
+KB_CHAR_BUDGET = 24000  # cap KB text injected into the prompt
 
 
 def fail(msg: str) -> "NoReturn":  # type: ignore[name-defined]
@@ -53,7 +55,23 @@ def local_now(tz_name: str) -> datetime:
         return datetime.now(timezone.utc)
 
 
-def build_prompt(config: dict, now_local: datetime) -> str:
+def load_knowledge_base() -> str:
+    """Concatenate every markdown file in knowledge_base/ as grounding context."""
+    if not KB_DIR.is_dir():
+        return ""
+    parts: list[str] = []
+    for md_file in sorted(KB_DIR.glob("*.md")):
+        try:
+            parts.append(md_file.read_text(encoding="utf-8").strip())
+        except Exception:
+            continue
+    kb = "\n\n".join(parts)
+    if len(kb) > KB_CHAR_BUDGET:
+        kb = kb[:KB_CHAR_BUDGET] + "\n\n[...knowledge base truncated...]"
+    return kb
+
+
+def build_prompt(config: dict, now_local: datetime, knowledge_base: str = "") -> str:
     lookback = int(config.get("lookback_hours", 24))
     since = now_local - timedelta(hours=lookback)
     topics = config.get("topics", [])
@@ -75,6 +93,21 @@ def build_prompt(config: dict, now_local: datetime) -> str:
         f"{now_local.strftime('%Y-%m-%d %H:%M %Z')}"
     )
 
+    kb_block = ""
+    if knowledge_base:
+        kb_block = f"""
+## Internal knowledge base (background — use for framing, not as today's news)
+The following is our standing context on Kore.ai and each tracked competitor. Use it
+to interpret today's developments, frame "Why it matters" vs. Kore.ai, and know each
+company's documented strengths/gaps. Treat "battlecard framing" as our positioning,
+not neutral fact. Do NOT repeat it as news — only report genuinely NEW developments
+found via search, informed by this context.
+
+<knowledge_base>
+{knowledge_base}
+</knowledge_base>
+"""
+
     return f"""You are a senior competitive-intelligence analyst at Kore.ai, an \
 enterprise conversational-AI and agentic-platform vendor. You track the \
 **enterprise agentic AI / contact-center AI (CCAI) / customer-experience** \
@@ -85,7 +118,7 @@ Use Google Search aggressively to find the most important, genuinely RECENT \
 developments — prioritize the last {lookback} hours (window: {window}), and at \
 most the last 3 days. Do not include stale or undated items as if they were news. \
 If a section has nothing genuinely new, say so briefly rather than padding.
-
+{kb_block}
 ## What to cover (sweep all of these)
 {topic_lines}
 
@@ -257,7 +290,10 @@ def main() -> None:
     tz_name = config.get("timezone", "Asia/Kolkata")
     now_local = local_now(tz_name)
 
-    prompt = build_prompt(config, now_local)
+    knowledge_base = load_knowledge_base()
+    if knowledge_base:
+        print(f"Loaded knowledge base ({len(knowledge_base)} chars).")
+    prompt = build_prompt(config, now_local, knowledge_base)
     digest = generate_digest(config, prompt)
     save_digest(digest, now_local)
 

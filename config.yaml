@@ -1,0 +1,59 @@
+# ============================================================
+# Agentic AI Daily Digest — configuration
+# Edit this file to tune what the agent tracks and where it sends.
+# No code changes needed.
+# ============================================================
+
+# Who receives the digest. Add more addresses to fan it out.
+recipients:
+  - anuragblr19@gmail.com
+
+email:
+  # Without a verified domain, Resend only sends from onboarding@resend.dev
+  # (and only to the address you signed up to Resend with).
+  from: "Agentic AI Digest <onboarding@resend.dev>"
+  subject_prefix: "🤖 Agentic AI Daily —"
+
+model:
+  # Gemini model with Google Search grounding. Override via GEMINI_MODEL env var.
+  # gemini-2.5-flash = fast/cheap; gemini-2.5-pro = deeper/slower.
+  name: gemini-2.5-flash
+  temperature: 0.4
+
+# How far back to look for "news" each run.
+lookback_hours: 24
+
+# Timezone used to date the digest and the morning run.
+timezone: "Asia/Kolkata"
+
+# ------------------------------------------------------------
+# Broad topic areas the agent sweeps every day.
+# ------------------------------------------------------------
+topics:
+  - "New model & lab releases relevant to agents (Anthropic, OpenAI, Google DeepMind, Meta, Mistral, xAI, Cohere, etc.) — tool use, computer use, long-horizon reasoning, agent capabilities"
+  - "Agent frameworks & tooling (LangChain / LangGraph, CrewAI, AutoGen, LlamaIndex, Model Context Protocol, agent SDKs, orchestration, evaluation & observability tooling)"
+  - "Notable research papers (arXiv and labs) on agent planning, memory, multi-agent systems, RAG, reasoning, and tool use"
+  - "Funding rounds, product launches, enterprise adoption, partnerships, and broader industry moves in agentic AI"
+
+# ------------------------------------------------------------
+# Competitor / company watchlist — the agent PRIORITIZES news
+# about these and gives them a dedicated section.
+#
+# 'focus' tells the agent what to emphasize for that company.
+# Use "anything notable" for general tracking.
+#
+# >>> REPLACE THE STARTER LIST BELOW WITH YOUR REAL WATCHLIST <<<
+# ===== ADD YOURS HERE =====
+# ------------------------------------------------------------
+watchlist:
+  - name: "Sierra"
+    focus: "product launches, enterprise customers, funding"
+  - name: "Cognition (Devin)"
+    focus: "product, benchmarks, hiring, funding"
+  - name: "Decagon"
+    focus: "product, customers, funding"
+  - name: "Adept"
+    focus: "anything notable"
+  - name: "Imbue"
+    focus: "anything notable"
+# ===== END WATCHLIST =====

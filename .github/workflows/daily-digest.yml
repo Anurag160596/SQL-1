@@ -1,0 +1,55 @@
+name: Agentic AI Daily Digest
+
+on:
+  schedule:
+    # 02:30 UTC == 08:00 IST. GitHub cron is always UTC.
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+    # Manual trigger from the Actions tab.
+    inputs:
+      dry_run:
+        description: "Generate & commit but do NOT send email"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-digest
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate and send digest
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          DIGEST_DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: python digest_agent.py
+
+      - name: Commit today's digest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add digests/
+          if git diff --staged --quiet; then
+            echo "No new digest to commit."
+          else
+            git commit -m "digest: $(date -u +%Y-%m-%d)"
+            git push
+          fi

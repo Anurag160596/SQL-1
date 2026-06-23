@@ -758,8 +758,32 @@ def _send_alert(config: dict, markdown: str, now_local: datetime) -> None:
     send_email(config, markdown, now_local, subject=subject)
 
 
+def _is_paused(config: dict) -> bool:
+    """True if config.pause_until is in the future (UTC). Used for one-off skips."""
+    raw = config.get("pause_until")
+    if not raw:
+        return False
+    try:
+        pu = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+    except Exception:
+        print(f"Could not parse pause_until={raw!r}; ignoring.")
+        return False
+    if pu.tzinfo is None:
+        pu = pu.replace(tzinfo=timezone.utc)
+    if datetime.now(timezone.utc) < pu:
+        print(f"Paused until {pu.isoformat()} — skipping this run (no email).")
+        return True
+    return False
+
+
 def main() -> None:
     config = load_config()
+
+    # One-off pause: skip the whole run (no fetch, no model call, no email)
+    # while pause_until is in the future. Self-clears once the time passes.
+    if _is_paused(config):
+        return
+
     tz_name = config.get("timezone", "Asia/Kolkata")
     now_local = local_now(tz_name)
 

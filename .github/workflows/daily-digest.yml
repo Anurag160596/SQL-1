@@ -2,8 +2,8 @@ name: Agentic AI Daily Digest
 
 on:
   schedule:
-    # 02:30 UTC == 08:00 IST. GitHub cron is always UTC.
-    - cron: "30 2 * * *"
+    # Every 12 hours: 02:30 & 14:30 UTC == 08:00 & 20:00 IST. Cron is always UTC.
+    - cron: "30 2,14 * * *"
   workflow_dispatch:
     # Manual trigger from the Actions tab.
     inputs:
@@ -42,7 +42,7 @@ jobs:
           DIGEST_DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: python digest_agent.py
 
-      - name: Commit today's digest
+      - name: Commit the digest
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -50,6 +50,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No new digest to commit."
           else
-            git commit -m "digest: $(date -u +%Y-%m-%d)"
+            git commit -m "digest: $(date -u +%Y-%m-%dT%H%MZ)"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
             git push
           fi

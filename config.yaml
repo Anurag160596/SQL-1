@@ -8,6 +8,12 @@
 recipients:
   - anuragblr19@gmail.com
 
+# One-off pause: while this UTC timestamp is in the future, ALL runs (digest +
+# alerts) skip entirely — no email. Self-clears once the time passes. Set to ""
+# to disable. Currently set to keep things quiet overnight; the first run after
+# this is the 08:00 IST / 02:30 UTC digest tomorrow, which sends normally.
+pause_until: "2026-06-24T02:00:00Z"
+
 email:
   # Without a verified domain, Resend only sends from onboarding@resend.dev
   # (and only to the address you signed up to Resend with).

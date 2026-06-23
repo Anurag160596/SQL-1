@@ -24,6 +24,11 @@ model:
   fallbacks:
     - gemini-2.5-flash
   temperature: 0.4
+  # Per-model retry with exponential backoff before falling to the next model.
+  # Waits backoff_base * 2^(n-1) between attempts (e.g. 5s, then 10s).
+  # Makes unattended cron runs resilient to transient free-tier 503s.
+  max_retries: 3
+  retry_backoff_seconds: 5
 
 # How far back to look for "news" each run.
 lookback_hours: 24

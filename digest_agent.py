@@ -25,6 +25,7 @@ import json
 import os
 import re
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -223,30 +224,47 @@ def generate_digest(config: dict, prompt: str) -> str:
         if m and m not in candidates:
             candidates.append(m)
     temperature = float(model_cfg.get("temperature", 0.4))
+    max_retries = max(1, int(model_cfg.get("max_retries", 3)))
+    backoff_base = float(model_cfg.get("retry_backoff_seconds", 5))
 
     client = genai.Client(api_key=api_key)
     search_tool = types.Tool(google_search=types.GoogleSearch())
     gen_config = types.GenerateContentConfig(tools=[search_tool], temperature=temperature)
 
-    # Retryable: model overloaded / quota — try the next candidate model.
+    # Retryable: model overloaded (503) / quota (429) / transient 5xx. For each
+    # candidate model we retry with exponential backoff, then fall through to the
+    # next model — so a transient free-tier 503 doesn't kill an unattended run.
     retry_codes = {429, 500, 502, 503, 504}
     response = None
     last_err: Exception | None = None
     for model_name in candidates:
-        print(f"Generating digest with {model_name} (Google Search grounding)...")
-        try:
-            response = client.models.generate_content(
-                model=model_name, contents=prompt, config=gen_config
+        for attempt in range(1, max_retries + 1):
+            print(
+                f"Generating digest with {model_name} "
+                f"(attempt {attempt}/{max_retries}, Google Search grounding)..."
             )
-            print(f"  -> succeeded with {model_name}")
+            try:
+                response = client.models.generate_content(
+                    model=model_name, contents=prompt, config=gen_config
+                )
+                print(f"  -> succeeded with {model_name}")
+                break
+            except genai.errors.APIError as exc:
+                code = getattr(exc, "code", None) or getattr(exc, "status_code", None)
+                last_err = exc
+                if code not in retry_codes:
+                    raise
+                if attempt < max_retries:
+                    wait = backoff_base * (2 ** (attempt - 1))
+                    print(f"  -> {code} on {model_name}; retrying in {wait:.0f}s...")
+                    time.sleep(wait)
+                else:
+                    print(
+                        f"  -> {code} on {model_name}; exhausted {max_retries} "
+                        "attempts, trying next model..."
+                    )
+        if response is not None:
             break
-        except genai.errors.APIError as exc:
-            code = getattr(exc, "code", None) or getattr(exc, "status_code", None)
-            last_err = exc
-            if code in retry_codes:
-                print(f"  -> {code} on {model_name}; trying next model...")
-                continue
-            raise
     if response is None:
         fail(f"All candidate models failed ({', '.join(candidates)}). Last error: {last_err}")
 

@@ -36,6 +36,7 @@ Built from the user's own Google Drive + Notion materials (June 2026):
 - Notion: "Cresta vs Conductor", "ABL Dynamic Value Instrument", "Google's OKF" notes
 
 Competitors **without** an internal deck (Sierra, Decagon, Genesys, NICE/Cognigy,
-Five9, Glean, Moveworks, Agentforce, ServiceNow, IBM) are profiled from general
-market knowledge and flagged `⚠️ No internal battlecard yet — verify via web`.
+Five9, Glean, Moveworks, Agentforce, ServiceNow, IBM) were hardened via **web research
+(June 2026)** with inline sources; figures that are third-party estimates (vendors rarely
+publish list pricing) are flagged inline. Re-verify before external/customer-facing use.
 The agent refreshes all of this with live web search at run time.

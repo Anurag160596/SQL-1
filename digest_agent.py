@@ -38,7 +38,7 @@ DIGESTS_DIR = ROOT / "digests"
 ALERT_STATE_PATH = ROOT / "alerts_state.json"
 ALERT_STATE_RETENTION_DAYS = 7
 KB_DIR = ROOT / "knowledge_base"
-KB_CHAR_BUDGET = 24000  # cap KB text injected into the prompt
+KB_CHAR_BUDGET = 48000  # cap KB text injected into the prompt
 
 
 def fail(msg: str) -> "NoReturn":  # type: ignore[name-defined]

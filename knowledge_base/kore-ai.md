@@ -33,9 +33,22 @@ Kore.ai's central wedge vs. "prompt + custom code" competitors:
 - **Wider author base**: domain experts (not just developers) can build compile-valid
   agents; AI generates valid ABL.
 
-## Analyst standing (Kore.ai's claim)
-Recognized as a **Leader across six evaluations** — Gartner Magic Quadrant (Aug 2025),
-Forrester (x2 Waves), Everest (x2 PEAK matrices), and IDC MarketScape.
+## Analyst standing (verified, 2025–26)
+The single strongest proof point — most of the watchlist is **not** a Leader in the
+CX-specific conversational-AI evaluations where Kore.ai is:
+- **Leader, Gartner Magic Quadrant for Conversational AI Platforms 2025** — only Google
+  and Kore.ai cited as Leaders. (Notably: Salesforce/Agentforce and IBM are *not*
+  Leaders here; IBM slipped to Challenger.)
+- **Leader, Forrester Wave: Conversational AI Platforms for Customer Service, Q2 2026** —
+  Leaders are **Kore.ai, NiCE Cognigy, and Omilia**; Forrester credited Kore.ai's offering
+  strength, AI model management, governance, and back-end integrations.
+- Kore.ai's own framing: **Leader across six evaluations** — Gartner (Aug 2025),
+  Forrester (x2), Everest (x2 PEAK), IDC MarketScape.
+
+**Use this as the "Proof/validation" wedge:** CCaaS incumbents lead in *CCaaS* MQs and
+big-tech vendors lead in *CRM/ITSM* MQs — but in the **conversational/agentic-AI-for-CX**
+category specifically, the Leaders are pure-play platforms (Kore.ai, NiCE Cognigy, Omilia).
+NiCE Cognigy is therefore the one peer-Leader to take most seriously.
 
 ## Standard competitive plays
 - Against **voice-only / voice-first** rivals (PolyAI, Parloa): win on true omnichannel,

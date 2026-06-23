@@ -20,7 +20,10 @@ Optional environment variables:
 
 from __future__ import annotations
 
+import hashlib
+import json
 import os
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -32,6 +35,8 @@ import yaml
 ROOT = Path(__file__).resolve().parent
 CONFIG_PATH = ROOT / "config.yaml"
 DIGESTS_DIR = ROOT / "digests"
+ALERT_STATE_PATH = ROOT / "alerts_state.json"
+ALERT_STATE_RETENTION_DAYS = 7
 KB_DIR = ROOT / "knowledge_base"
 KB_CHAR_BUDGET = 24000  # cap KB text injected into the prompt
 
@@ -356,11 +361,16 @@ breaking:
 {trigger_lines}
 {kb_block}
 Search the web to verify. If — and only if — you find one or more qualifying events, \
-output Markdown starting with an H1 "# 🚨 Undercut Alert", then for EACH event:
-- **[Competitor] — <event>** — [Source](url)
-  - **Why it's urgent:** one line
-  - **Undercut play:** the single sharpest action to take now, tagged 🟦 Sales / \
-🟩 PMM / 🟪 AR / 🟧 Product
+output ONLY a fenced ```json code block containing a JSON array of event objects. \
+Each object MUST have these string keys:
+- "competitor": the competitor name
+- "headline": one-line description of the event
+- "url": a real, working source URL (never fabricate)
+- "trigger": which trigger category it matches
+- "why_urgent": one line on why it matters now
+- "play": the single sharpest action, prefixed with one of 🟦 Sales / 🟩 PMM / 🟪 AR / 🟧 Product
+
+Output nothing outside the ```json block.
 
 If there are NO qualifying high-value events in the window, output EXACTLY this and \
 nothing else:
@@ -380,22 +390,118 @@ def run_daily(config: dict, now_local: datetime, knowledge_base: str, dry_run: b
     print("Done.")
 
 
+def _parse_alert_events(result: str) -> list[dict] | None:
+    """Extract the JSON event array from the model output. None = unparseable."""
+    match = re.search(r"```json\s*(.*?)\s*```", result, re.DOTALL)
+    blob = match.group(1) if match else result
+    blob = blob.strip()
+    if not (blob.startswith("[") or blob.startswith("{")):
+        start = blob.find("[")
+        if start == -1:
+            return None
+        blob = blob[start:]
+    try:
+        data = json.loads(blob)
+    except json.JSONDecodeError:
+        return None
+    if isinstance(data, dict):
+        data = [data]
+    return [e for e in data if isinstance(e, dict) and e.get("headline")]
+
+
+def _fingerprint(event: dict) -> str:
+    """Stable id for an event: competitor + normalized headline + url host/path."""
+    comp = re.sub(r"\W+", "", str(event.get("competitor", "")).lower())
+    head = re.sub(r"\W+", "", str(event.get("headline", "")).lower())[:60]
+    url = re.sub(r"^https?://(www\.)?", "", str(event.get("url", "")).lower()).split("?")[0].rstrip("/")
+    return hashlib.sha1(f"{comp}|{head}|{url}".encode()).hexdigest()[:16]
+
+
+def _load_alert_state() -> dict:
+    if not ALERT_STATE_PATH.exists():
+        return {}
+    try:
+        return json.loads(ALERT_STATE_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _save_alert_state(state: dict, now_utc: datetime) -> None:
+    cutoff = now_utc - timedelta(days=ALERT_STATE_RETENTION_DAYS)
+    pruned = {
+        fp: ts
+        for fp, ts in state.items()
+        if _safe_dt(ts) is None or _safe_dt(ts) >= cutoff
+    }
+    ALERT_STATE_PATH.write_text(json.dumps(pruned, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _safe_dt(iso: str) -> datetime | None:
+    try:
+        return datetime.fromisoformat(iso)
+    except Exception:
+        return None
+
+
+def _render_alert_markdown(events: list[dict], now_local: datetime) -> str:
+    lines = [f"# 🚨 Undercut Alert — {now_local.strftime('%a %d %b %Y, %H:%M %Z')}", ""]
+    for e in events:
+        url = e.get("url", "")
+        link = f" — [Source]({url})" if url else ""
+        lines.append(f"- **{e.get('competitor', '?')} — {e.get('headline', '')}**{link}")
+        if e.get("trigger"):
+            lines.append(f"  - **Trigger:** {e['trigger']}")
+        if e.get("why_urgent"):
+            lines.append(f"  - **Why it's urgent:** {e['why_urgent']}")
+        if e.get("play"):
+            lines.append(f"  - **Undercut play:** {e['play']}")
+    return "\n".join(lines)
+
+
 def run_alerts(config: dict, now_local: datetime, knowledge_base: str, dry_run: bool) -> None:
     prompt = build_alert_prompt(config, now_local, knowledge_base)
     result = generate_digest(config, prompt)
-    # Sentinel check: strip any trailing grounding-sources block before comparing.
+
     head = result.split("\n", 1)[0].strip()
     if result.strip() == NO_ALERTS_SENTINEL or head == NO_ALERTS_SENTINEL:
         print("No high-value alert events found — nothing to send.")
         return
-    print("Alert-worthy event(s) found.")
-    if dry_run:
-        print("DIGEST_DRY_RUN set — skipping alert email.\n\n" + result)
+
+    events = _parse_alert_events(result)
+    if events is None:
+        # Couldn't parse structured events; fall back to sending raw (no dedup)
+        # rather than swallow a possible real alert.
+        print("Could not parse structured events — sending raw alert (no dedup).")
+        if dry_run:
+            print("DIGEST_DRY_RUN set — skipping alert email.\n\n" + result)
+            return
+        _send_alert(config, result, now_local)
         return
+
+    now_utc = datetime.now(timezone.utc)
+    state = _load_alert_state()
+    new_events = [e for e in events if _fingerprint(e) not in state]
+    if not new_events:
+        print(f"All {len(events)} alert event(s) already sent previously — nothing new.")
+        return
+
+    markdown = _render_alert_markdown(new_events, now_local)
+    print(f"{len(new_events)} new alert event(s) (of {len(events)} found).")
+    if dry_run:
+        print("DIGEST_DRY_RUN set — skipping email + state write.\n\n" + markdown)
+        return
+
+    _send_alert(config, markdown, now_local)
+    for e in new_events:
+        state[_fingerprint(e)] = now_utc.isoformat()
+    _save_alert_state(state, now_utc)
+    print("Alert email sent; state updated.")
+
+
+def _send_alert(config: dict, markdown: str, now_local: datetime) -> None:
     subject_prefix = config.get("alerts", {}).get("subject_prefix", "🚨 Undercut Alert —")
     subject = f"{subject_prefix} {now_local.strftime('%a %d %b, %H:%M')}"
-    send_email(config, result, now_local, subject=subject)
-    print("Alert email sent.")
+    send_email(config, markdown, now_local, subject=subject)
 
 
 def main() -> None:

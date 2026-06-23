@@ -85,6 +85,7 @@ python digest_agent.py        # add DIGEST_DRY_RUN=1 to skip the email
 | `.github/workflows/daily-digest.yml` | Daily digest cron + manual trigger. |
 | `.github/workflows/undercut-alerts.yml` | Rapid-alert sweep every 4 hours. |
 | `digests/` | Dated archive of every daily digest. |
+| `alerts_state.json` | Dedup state for rapid alerts (auto-managed; prevents re-alerting the same event for 7 days). |
 
 ### Run modes
 

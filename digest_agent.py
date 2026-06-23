@@ -214,9 +214,17 @@ provided below in <fresh_news>. Build the entire digest STRICTLY from these item
 2. Do NOT invent items, do NOT add anything not in <fresh_news>, and do NOT pull \
 "news" from the knowledge base or memory. Every item you report MUST correspond to \
 one in <fresh_news>, keeping its **(YYYY-MM-DD)** date and its source link.
-3. Judgement is yours: pick the most important items, group/synthesise them, and \
+3. ATTRIBUTION CHECK (critical): attribute an item to a competitor ONLY if the \
+article is genuinely ABOUT that competitor. DROP the item if the competitor is just \
+mentioned in passing (as an example, comparison, or customer), if the story is \
+actually about a different company, or if it's a different organisation that merely \
+shares the name (e.g. a manufacturer, foundry, or nonprofit). NEVER restate another \
+company's funding/news under a competitor's name. When in doubt, drop it.
+4. Relevance: keep only items relevant to enterprise CX / contact-center / agentic \
+AI. Drop unrelated items (sports sponsorships, manufacturing, generic stock blurbs).
+5. Judgement is yours: pick the most important items, group/synthesise them, and \
 frame the undercut angle using the knowledge base. You may drop trivial items.
-4. Honesty over volume: if <fresh_news> is thin or has nothing material, say \
+6. Honesty over volume: if <fresh_news> is thin or has nothing material, say \
 "Nothing material in the window" rather than padding.
 
 <fresh_news>

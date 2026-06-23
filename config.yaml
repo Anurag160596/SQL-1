@@ -32,6 +32,25 @@ model:
   max_retries: 4
   retry_backoff_seconds: 5
 
+# Fresh-news sourcing via Google News RSS (free, no API key). The agent fetches
+# dated, in-window items per competitor and feeds them to the model to synthesize,
+# instead of relying on the model to search (which the free tier throttles).
+news:
+  enabled: true
+  max_per_company: 5
+  max_total: 40
+
+# Honesty guard: how to handle a run where the model performed NO live web
+# search (zero grounding sources) — which on the free tier means it likely
+# recycled the knowledge base instead of finding fresh news.
+grounding:
+  # Daily digest: prepend a clear "KB-only / unverified" warning banner.
+  # (Always on; the banner makes stale content obvious instead of misleading.)
+  # If true, the daily digest is archived but NOT emailed when ungrounded.
+  skip_if_ungrounded: false
+  # Rapid alerts are ALWAYS suppressed when ungrounded (an alert with no live
+  # search can't be trusted) — not configurable.
+
 # How far back to look for "news" each run. Genuinely new competitor news is
 # sparse day-to-day in this market, so 72h gives enough fresh material while
 # staying recent. Every item is still date-stamped so nothing stale slips in.
@@ -90,31 +109,46 @@ topics:
 # >>> REPLACE THE STARTER LIST BELOW WITH YOUR REAL WATCHLIST <<<
 # ===== ADD YOURS HERE =====
 # ------------------------------------------------------------
+# 'query' is the Google News search string (disambiguates generic names);
+# defaults to the quoted name if omitted.
 watchlist:
   - name: "Sierra"
+    query: "Sierra AI agents"
     focus: "conversational AI agents, enterprise CX customers, funding, product launches"
   - name: "Decagon"
+    query: "Decagon AI"
     focus: "AI customer-service agents, enterprise wins, funding, product"
   - name: "Cresta"
+    query: "Cresta AI"
     focus: "contact-center AI, agent-assist, AI agents, enterprise customers, funding"
   - name: "PolyAI"
+    query: "PolyAI"
     focus: "voice AI agents, enterprise CX wins, funding, product, analyst recognition"
   - name: "Parloa"
+    query: "Parloa"
     focus: "AI agent platform, contact-center deployments, funding, partnerships, analyst recognition"
   - name: "Genesys"
+    query: "Genesys"
     focus: "Cloud CX, AI agents/Copilot, partnerships, earnings, IPO, analyst recognition"
   - name: "NICE (Cognigy)"
+    query: "Cognigy OR \"NICE CXone\""
     focus: "NICE CXone, Cognigy acquisition/integration, AI agents, enterprise deals, earnings"
   - name: "Five9"
+    query: "Five9"
     focus: "AI agents, contact-center platform, partnerships, enterprise wins, earnings"
   - name: "Glean"
+    query: "Glean AI"
     focus: "enterprise AI agents, work assistants, funding, product, enterprise adoption"
   - name: "Moveworks"
+    query: "Moveworks"
     focus: "enterprise AI agents/ITSM & employee support, ServiceNow acquisition, product"
   - name: "Agentforce (Salesforce)"
+    query: "Salesforce Agentforce"
     focus: "Agentforce releases, pricing, customer adoption, agentic CRM positioning"
   - name: "ServiceNow Agent Platform"
+    query: "ServiceNow AI agents"
     focus: "AI Agents/Now Assist, agentic workflow platform, releases, enterprise adoption"
   - name: "IBM Agent Platform"
+    query: "IBM watsonx Orchestrate"
     focus: "watsonx Orchestrate / agentic AI, releases, partnerships, enterprise adoption"
 # ===== END WATCHLIST =====

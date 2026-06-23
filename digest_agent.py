@@ -22,11 +22,16 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import re
 import sys
 import time
+import urllib.parse
+import urllib.request
+import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -77,7 +82,102 @@ def load_knowledge_base() -> str:
     return kb
 
 
-def build_prompt(config: dict, now_local: datetime, knowledge_base: str = "") -> str:
+NEWS_RSS_BASE = "https://news.google.com/rss/search"
+
+
+def _fetch_rss(query: str, days: int) -> bytes:
+    params = {"q": f"{query} when:{days}d", "hl": "en-US", "gl": "US", "ceid": "US:en"}
+    url = NEWS_RSS_BASE + "?" + urllib.parse.urlencode(params)
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (digest-agent)"})
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        return resp.read()
+
+
+def fetch_news(config: dict, now_local: datetime, lookback_hours: int | None = None) -> list[dict]:
+    """Pull fresh, dated competitor news from Google News RSS (free, no key).
+
+    Returns items within the lookback window: {competitor, title, url, date, source}.
+    On any failure it returns whatever it gathered (possibly empty), letting the
+    caller fall back to model-side web search.
+    """
+    news_cfg = config.get("news", {})
+    if not news_cfg.get("enabled", True):
+        return []
+    lookback = int(lookback_hours or config.get("lookback_hours", 72))
+    days = max(1, math.ceil(lookback / 24))
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=lookback)
+    per_company = int(news_cfg.get("max_per_company", 5))
+    total_cap = int(news_cfg.get("max_total", 40))
+
+    items: list[dict] = []
+    seen: set[str] = set()
+    for w in config.get("watchlist", []):
+        name = w.get("name", "")
+        query = w.get("query") or f'"{name}"'
+        try:
+            root = ET.fromstring(_fetch_rss(query, days))
+        except Exception as exc:
+            print(f"  news fetch failed for {name}: {str(exc)[:80]}")
+            continue
+        count = 0
+        for item in root.iter("item"):
+            title = (item.findtext("title") or "").strip()
+            link = (item.findtext("link") or "").strip()
+            pub = item.findtext("pubDate")
+            src_el = item.find("source")
+            source = (src_el.text or "").strip() if src_el is not None else ""
+            if not title or not pub:
+                continue
+            try:
+                dt = parsedate_to_datetime(pub)
+            except Exception:
+                continue
+            if dt is None:
+                continue
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            if dt < cutoff:
+                continue
+            key = re.sub(r"\W+", "", title.lower())[:80]
+            if key in seen:
+                continue
+            seen.add(key)
+            items.append({
+                "competitor": name,
+                "title": title,
+                "url": link,
+                "date": dt.strftime("%Y-%m-%d"),
+                "source": source,
+            })
+            count += 1
+            if count >= per_company:
+                break
+    items.sort(key=lambda x: x["date"], reverse=True)
+    if len(items) > total_cap:
+        items = items[:total_cap]
+    print(f"Fetched {len(items)} fresh news item(s) from Google News RSS.")
+    return items
+
+
+def format_news_block(items: list[dict]) -> str:
+    by_company: dict[str, list[dict]] = {}
+    for it in items:
+        by_company.setdefault(it["competitor"], []).append(it)
+    lines: list[str] = []
+    for comp, lst in by_company.items():
+        lines.append(f"### {comp}")
+        for it in lst:
+            src = f" — {it['source']}" if it.get("source") else ""
+            lines.append(f"- ({it['date']}) {it['title']}{src} — {it['url']}")
+    return "\n".join(lines)
+
+
+def build_prompt(
+    config: dict,
+    now_local: datetime,
+    knowledge_base: str = "",
+    news_items: "list[dict] | None" = None,
+) -> str:
     lookback = int(config.get("lookback_hours", 24))
     since = now_local - timedelta(hours=lookback)
     topics = config.get("topics", [])
@@ -104,6 +204,40 @@ def build_prompt(config: dict, now_local: datetime, knowledge_base: str = "") ->
         f"{now_local.strftime('%Y-%m-%d %H:%M %Z')}"
     )
 
+    if news_items:
+        # Fresh-news mode: items were pre-fetched (e.g. Google News RSS), already
+        # filtered to the window and dated. The model must NOT search or invent —
+        # it builds the digest strictly from these real items.
+        sourcing_rules = f"""## ⛔ SOURCING RULES (read first)
+1. A set of PRE-FETCHED, real, dated news items from the last {lookback} hours is \
+provided below in <fresh_news>. Build the entire digest STRICTLY from these items.
+2. Do NOT invent items, do NOT add anything not in <fresh_news>, and do NOT pull \
+"news" from the knowledge base or memory. Every item you report MUST correspond to \
+one in <fresh_news>, keeping its **(YYYY-MM-DD)** date and its source link.
+3. Judgement is yours: pick the most important items, group/synthesise them, and \
+frame the undercut angle using the knowledge base. You may drop trivial items.
+4. Honesty over volume: if <fresh_news> is thin or has nothing material, say \
+"Nothing material in the window" rather than padding.
+
+<fresh_news>
+{format_news_block(news_items)}
+</fresh_news>"""
+    else:
+        # Fallback mode: no pre-fetched news, so the model must search the web itself.
+        sourcing_rules = f"""## ⛔ CRITICAL RECENCY RULES (read first)
+1. You MUST use Google Search. For EACH watchlist company run explicit recent-news \
+queries (e.g. "<company> news", "<company> announcement {month_year}", \
+"<company> funding/pricing/outage"). Do not answer from memory.
+2. Report ONLY items you found via search that were **published within the window \
+{window}** (last {lookback} hours). Every item MUST cite its **publication date as \
+(YYYY-MM-DD)** inline. If you cannot establish a publication date within the window, \
+DROP the item.
+3. The knowledge base below is BACKGROUND ONLY. NEVER present a knowledge-base fact \
+(e.g. an already-known funding round, the Genesys outage, the NICE–Cognigy deal) as \
+today's news. Use it only to interpret and frame genuinely new search results.
+4. Honesty over volume: if a section or the whole digest has nothing new in the \
+window, say "Nothing new in the window" — do NOT backfill with older or KB items."""
+
     kb_block = ""
     if knowledge_base:
         kb_block = f"""
@@ -129,19 +263,7 @@ Your job is not just to report news — it is to find **openings to undercut the
 competitors** and hand our teams (Sales, Product Marketing, Analyst Relations, \
 Product) something they can act on today.
 
-## ⛔ CRITICAL RECENCY RULES (read first)
-1. You MUST use Google Search. For EACH watchlist company run explicit recent-news \
-queries (e.g. "<company> news", "<company> announcement {month_year}", \
-"<company> funding/pricing/outage"). Do not answer from memory.
-2. Report ONLY items you found via search that were **published within the window \
-{window}** (last {lookback} hours). Every item MUST cite its **publication date as \
-(YYYY-MM-DD)** inline. If you cannot establish a publication date within the window, \
-DROP the item.
-3. The knowledge base below is BACKGROUND ONLY. NEVER present a knowledge-base fact \
-(e.g. an already-known funding round, the Genesys outage, the NICE–Cognigy deal) as \
-today's news. Use it only to interpret and frame genuinely new search results.
-4. Honesty over volume: if a section or the whole digest has nothing new in the \
-window, say "Nothing new in the window" — do NOT backfill with older or KB items.
+{sourcing_rules}
 {kb_block}
 ## What to cover (sweep all of these)
 {topic_lines}
@@ -217,7 +339,7 @@ A handful of smaller-but-worth-knowing items as one-liners with links.
 - It is fine for the digest to be long; depth is the goal."""
 
 
-def generate_digest(config: dict, prompt: str) -> str:
+def generate_digest(config: dict, prompt: str, use_search: bool = True):
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         fail("GEMINI_API_KEY is not set.")
@@ -231,9 +353,17 @@ def generate_digest(config: dict, prompt: str) -> str:
     model_cfg = config.get("model", {})
     primary = os.environ.get("GEMINI_MODEL") or model_cfg.get("name", "gemini-2.5-flash")
     fallbacks = model_cfg.get("fallbacks", ["gemini-2.5-flash-lite"])
-    # Ordered, de-duplicated candidate list: primary first, then fallbacks.
+    if use_search:
+        # Search quality matters → lead with the configured (grounding) model.
+        order = [primary, *fallbacks]
+    else:
+        # Pure synthesis of pre-fetched news → no search needed, so lead with the
+        # cheap, reliable synthesis model (avoids burning retries on a throttled flash).
+        synth = model_cfg.get("synthesis_model", "gemini-2.5-flash-lite")
+        order = [synth, primary, *fallbacks]
+    # Ordered, de-duplicated candidate list.
     candidates: list[str] = []
-    for m in [primary, *fallbacks]:
+    for m in order:
         if m and m not in candidates:
             candidates.append(m)
     temperature = float(model_cfg.get("temperature", 0.4))
@@ -241,8 +371,12 @@ def generate_digest(config: dict, prompt: str) -> str:
     backoff_base = float(model_cfg.get("retry_backoff_seconds", 5))
 
     client = genai.Client(api_key=api_key)
-    search_tool = types.Tool(google_search=types.GoogleSearch())
-    gen_config = types.GenerateContentConfig(tools=[search_tool], temperature=temperature)
+    if use_search:
+        tools = [types.Tool(google_search=types.GoogleSearch())]
+    else:
+        # Fresh news already supplied in the prompt — no model-side search needed.
+        tools = []
+    gen_config = types.GenerateContentConfig(tools=tools, temperature=temperature)
 
     # Retryable: model overloaded (503) / quota (429) / transient 5xx. For each
     # candidate model we retry with exponential backoff, then fall through to the
@@ -250,11 +384,12 @@ def generate_digest(config: dict, prompt: str) -> str:
     retry_codes = {429, 500, 502, 503, 504}
     response = None
     last_err: Exception | None = None
+    mode_label = "Google Search grounding" if use_search else "synthesis, no search"
     for model_name in candidates:
         for attempt in range(1, max_retries + 1):
             print(
                 f"Generating digest with {model_name} "
-                f"(attempt {attempt}/{max_retries}, Google Search grounding)..."
+                f"(attempt {attempt}/{max_retries}, {mode_label})..."
             )
             try:
                 response = client.models.generate_content(
@@ -290,7 +425,10 @@ def generate_digest(config: dict, prompt: str) -> str:
         text += "\n\n---\n\n### 📎 Grounding sources\n" + "\n".join(
             f"- [{title}]({url})" for title, url in sources
         )
-    return text
+    # Return the live-search source count so callers can gate on grounding:
+    # zero sources means the model answered without web search (likely recycling
+    # the knowledge base), so the digest must not be presented as fresh news.
+    return text, len(sources)
 
 
 def extract_sources(response) -> list[tuple[str, str]]:
@@ -375,7 +513,12 @@ def send_email(
 NO_ALERTS_SENTINEL = "NO_ALERTS"
 
 
-def build_alert_prompt(config: dict, now_local: datetime, knowledge_base: str) -> str:
+def build_alert_prompt(
+    config: dict,
+    now_local: datetime,
+    knowledge_base: str,
+    news_items: "list[dict] | None" = None,
+) -> str:
     """Short-window prompt: only surface HIGH-VALUE breaking undercut events."""
     alerts_cfg = config.get("alerts", {})
     lookback = int(alerts_cfg.get("lookback_hours", 6))
@@ -397,6 +540,16 @@ def build_alert_prompt(config: dict, now_local: datetime, knowledge_base: str) -
         else ""
     )
 
+    if news_items:
+        source_instr = (
+            "A set of PRE-FETCHED, dated news items from the alert window is provided "
+            "below in <fresh_news>. Consider ONLY these items. Do not search or invent. "
+            "Select ONLY those that are genuinely HIGH-VALUE breaking triggers.\n\n"
+            f"<fresh_news>\n{format_news_block(news_items)}\n</fresh_news>\n"
+        )
+    else:
+        source_instr = "Search the web to verify candidate events.\n"
+
     return f"""You are a competitive-intelligence analyst at Kore.ai running a \
 RAPID ALERT sweep. Only surface HIGH-VALUE, time-sensitive, breaking events about \
 our competitors that just happened in the window {window} (last {lookback} hours). \
@@ -409,7 +562,8 @@ An event qualifies ONLY if it is one of these high-value triggers and is genuine
 breaking:
 {trigger_lines}
 {kb_block}
-Search the web to verify. If — and only if — you find one or more qualifying events, \
+{source_instr}
+If — and only if — you find one or more qualifying events, \
 output ONLY a fenced ```json code block containing a JSON array of event objects. \
 Each object MUST have these string keys:
 - "competitor": the competitor name
@@ -428,9 +582,41 @@ nothing else:
 Never fabricate events or URLs. When in doubt, output {NO_ALERTS_SENTINEL}."""
 
 
+UNGROUNDED_BANNER = (
+    "> ⚠️ **KB-only run — no live web search succeeded.** The model returned no "
+    "grounding sources this run (likely free-tier throttling falling back to a "
+    "non-searching model), so the items below are drawn from the internal "
+    "knowledge base, not fresh search results. **Treat dates and \"news\" as "
+    "unverified / possibly stale.** Enable billing for reliable grounded search.\n\n"
+    "---\n\n"
+)
+
+
 def run_daily(config: dict, now_local: datetime, knowledge_base: str, dry_run: bool) -> None:
-    prompt = build_prompt(config, now_local, knowledge_base)
-    digest = generate_digest(config, prompt)
+    guard = config.get("grounding", {})
+    news_items = fetch_news(config, now_local)
+
+    if news_items:
+        # Freshness comes from the RSS feed; the model only synthesises (no search).
+        prompt = build_prompt(config, now_local, knowledge_base, news_items=news_items)
+        digest, _ = generate_digest(config, prompt, use_search=False)
+        grounded = len(news_items)
+    else:
+        # No pre-fetched news — fall back to model-side web search + grounding.
+        print("No RSS news fetched; falling back to model web search.")
+        prompt = build_prompt(config, now_local, knowledge_base)
+        digest, grounded = generate_digest(config, prompt, use_search=True)
+
+    if grounded == 0:
+        print("WARNING: no grounding sources — this run did not perform live search.")
+        digest = UNGROUNDED_BANNER + digest
+        if guard.get("skip_if_ungrounded", False):
+            save_digest(digest, now_local)
+            print("skip_if_ungrounded is set — archiving but NOT emailing the KB-only digest.")
+            return
+    else:
+        print(f"Grounded on {grounded} live source(s).")
+
     save_digest(digest, now_local)
     if dry_run:
         print("DIGEST_DRY_RUN set — skipping email.")
@@ -508,8 +694,17 @@ def _render_alert_markdown(events: list[dict], now_local: datetime) -> str:
 
 
 def run_alerts(config: dict, now_local: datetime, knowledge_base: str, dry_run: bool) -> None:
-    prompt = build_alert_prompt(config, now_local, knowledge_base)
-    result = generate_digest(config, prompt)
+    alerts_lookback = int(config.get("alerts", {}).get("lookback_hours", 6))
+    news_items = fetch_news(config, now_local, lookback_hours=alerts_lookback)
+
+    if news_items:
+        prompt = build_alert_prompt(config, now_local, knowledge_base, news_items=news_items)
+        result, _ = generate_digest(config, prompt, use_search=False)
+    else:
+        # No fresh RSS items in the short window → nothing to alert on. An alert
+        # without live, dated sourcing can't be trusted, so suppress.
+        print("No fresh RSS items in the alert window — suppressing.")
+        return
 
     head = result.split("\n", 1)[0].strip()
     if result.strip() == NO_ALERTS_SENTINEL or head == NO_ALERTS_SENTINEL:

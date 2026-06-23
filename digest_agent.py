@@ -214,23 +214,41 @@ def generate_digest(config: dict, prompt: str) -> str:
     except ImportError:
         fail("google-genai not installed. Run: pip install -r requirements.txt")
 
-    model_name = os.environ.get("GEMINI_MODEL") or config.get("model", {}).get(
-        "name", "gemini-2.5-flash"
-    )
-    temperature = float(config.get("model", {}).get("temperature", 0.4))
+    model_cfg = config.get("model", {})
+    primary = os.environ.get("GEMINI_MODEL") or model_cfg.get("name", "gemini-2.5-flash")
+    fallbacks = model_cfg.get("fallbacks", ["gemini-2.5-flash-lite"])
+    # Ordered, de-duplicated candidate list: primary first, then fallbacks.
+    candidates: list[str] = []
+    for m in [primary, *fallbacks]:
+        if m and m not in candidates:
+            candidates.append(m)
+    temperature = float(model_cfg.get("temperature", 0.4))
 
     client = genai.Client(api_key=api_key)
     search_tool = types.Tool(google_search=types.GoogleSearch())
+    gen_config = types.GenerateContentConfig(tools=[search_tool], temperature=temperature)
 
-    print(f"Generating digest with {model_name} (Google Search grounding)...")
-    response = client.models.generate_content(
-        model=model_name,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            tools=[search_tool],
-            temperature=temperature,
-        ),
-    )
+    # Retryable: model overloaded / quota — try the next candidate model.
+    retry_codes = {429, 500, 502, 503, 504}
+    response = None
+    last_err: Exception | None = None
+    for model_name in candidates:
+        print(f"Generating digest with {model_name} (Google Search grounding)...")
+        try:
+            response = client.models.generate_content(
+                model=model_name, contents=prompt, config=gen_config
+            )
+            print(f"  -> succeeded with {model_name}")
+            break
+        except genai.errors.APIError as exc:
+            code = getattr(exc, "code", None) or getattr(exc, "status_code", None)
+            last_err = exc
+            if code in retry_codes:
+                print(f"  -> {code} on {model_name}; trying next model...")
+                continue
+            raise
+    if response is None:
+        fail(f"All candidate models failed ({', '.join(candidates)}). Last error: {last_err}")
 
     text = (getattr(response, "text", None) or "").strip()
     if not text:

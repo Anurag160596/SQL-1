@@ -16,22 +16,26 @@ email:
 
 model:
   # Gemini model with Google Search grounding. Override via GEMINI_MODEL env var.
-  # flash-lite is the reliable choice on the free tier. Upgrade to
-  # gemini-2.5-flash or gemini-2.5-pro (deeper) once billing is enabled.
-  name: gemini-2.5-flash-lite
-  # If the primary is overloaded (503) or over quota (429), the agent falls back
-  # through these in order.
+  # IMPORTANT: gemini-2.5-flash actually performs grounded web search and returns
+  # fresh, dated news. gemini-2.5-flash-lite often skips search and recycles the
+  # knowledge base, so it's only a last-resort fallback. gemini-2.5-pro (paid) is
+  # deeper still. Enabling billing removes free-tier 503s entirely.
+  name: gemini-2.5-flash
+  # If the primary is overloaded (503) or over quota (429), the agent retries
+  # (see max_retries below) then falls back through these in order.
   fallbacks:
-    - gemini-2.5-flash
+    - gemini-2.5-flash-lite
   temperature: 0.4
   # Per-model retry with exponential backoff before falling to the next model.
-  # Waits backoff_base * 2^(n-1) between attempts (e.g. 5s, then 10s).
+  # Waits backoff_base * 2^(n-1) between attempts (e.g. 5s, 10s, 20s).
   # Makes unattended cron runs resilient to transient free-tier 503s.
-  max_retries: 3
+  max_retries: 4
   retry_backoff_seconds: 5
 
-# How far back to look for "news" each run.
-lookback_hours: 24
+# How far back to look for "news" each run. Genuinely new competitor news is
+# sparse day-to-day in this market, so 72h gives enough fresh material while
+# staying recent. Every item is still date-stamped so nothing stale slips in.
+lookback_hours: 72
 
 # ------------------------------------------------------------
 # Undercut engine — the openings the agent hunts for and how it

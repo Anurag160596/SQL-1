@@ -98,6 +98,7 @@ def build_prompt(config: dict, now_local: datetime, knowledge_base: str = "") ->
     lever_lines = "\n".join(f"  - {l}" for l in levers) or "  - (none specified)"
 
     today = now_local.strftime("%A, %d %B %Y")
+    month_year = now_local.strftime("%B %Y")
     window = (
         f"{since.strftime('%Y-%m-%d %H:%M %Z')} to "
         f"{now_local.strftime('%Y-%m-%d %H:%M %Z')}"
@@ -128,10 +129,19 @@ Your job is not just to report news — it is to find **openings to undercut the
 competitors** and hand our teams (Sales, Product Marketing, Analyst Relations, \
 Product) something they can act on today.
 
-Use Google Search aggressively to find the most important, genuinely RECENT \
-developments — prioritize the last {lookback} hours (window: {window}), and at \
-most the last 3 days. Do not include stale or undated items as if they were news. \
-If a section has nothing genuinely new, say so briefly rather than padding.
+## ⛔ CRITICAL RECENCY RULES (read first)
+1. You MUST use Google Search. For EACH watchlist company run explicit recent-news \
+queries (e.g. "<company> news", "<company> announcement {month_year}", \
+"<company> funding/pricing/outage"). Do not answer from memory.
+2. Report ONLY items you found via search that were **published within the window \
+{window}** (last {lookback} hours). Every item MUST cite its **publication date as \
+(YYYY-MM-DD)** inline. If you cannot establish a publication date within the window, \
+DROP the item.
+3. The knowledge base below is BACKGROUND ONLY. NEVER present a knowledge-base fact \
+(e.g. an already-known funding round, the Genesys outage, the NICE–Cognigy deal) as \
+today's news. Use it only to interpret and frame genuinely new search results.
+4. Honesty over volume: if a section or the whole digest has nothing new in the \
+window, say "Nothing new in the window" — do NOT backfill with older or KB items.
 {kb_block}
 ## What to cover (sweep all of these)
 {topic_lines}
@@ -145,7 +155,10 @@ These are the weaknesses to look for. Any new evidence of one is an opening:
 {lever_lines}
 
 ## Output format (Markdown only — no preamble, no "here is your digest")
-Start directly with an H1 title line. Structure:
+Every news item, in every section, MUST begin with its publication date as \
+**(YYYY-MM-DD)** and carry a working source link. Items without a verifiable \
+in-window date do not belong in the digest. Start directly with an H1 title line. \
+Structure:
 
 # Agentic AI Daily Digest — {today}
 

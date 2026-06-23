@@ -457,7 +457,9 @@ def extract_sources(response) -> list[tuple[str, str]]:
 
 def save_digest(markdown_text: str, now_local: datetime) -> Path:
     DIGESTS_DIR.mkdir(exist_ok=True)
-    out_path = DIGESTS_DIR / f"{now_local.strftime('%Y-%m-%d')}.md"
+    # Include the run time so multiple runs/day (e.g. the 12-hourly schedule)
+    # are each archived instead of overwriting one another.
+    out_path = DIGESTS_DIR / f"{now_local.strftime('%Y-%m-%d-%H%M')}.md"
     out_path.write_text(markdown_text + "\n", encoding="utf-8")
     print(f"Saved digest to {out_path}")
     return out_path

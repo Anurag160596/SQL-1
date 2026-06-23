@@ -12,8 +12,8 @@ immediate email when a high-value competitor event breaks.
 - **Memory:** a [`knowledge_base/`](knowledge_base/) of Kore.ai positioning + living
   competitor battlecards, injected into every run.
 - **Delivery:** email via [Resend](https://resend.com).
-- **Daily digest:** GitHub Actions cron at `02:30 UTC` (~08:00 IST). Hero section:
-  **⚔️ Undercut Opportunities.** Archived to [`digests/`](digests/) as `YYYY-MM-DD.md`.
+- **Digest:** GitHub Actions cron every 12h at `02:30` & `14:30 UTC` (~08:00 & 20:00 IST).
+  Hero section: **⚔️ Undercut Opportunities.** Archived to [`digests/`](digests/) as `YYYY-MM-DD-HHMM.md`.
 - **Rapid alerts:** GitHub Actions cron every 4 hours (`DIGEST_MODE=alerts`); emails
   **only** when a high-value trigger (price change, outage, exec exit, lost logo,
   analyst downgrade, M&A) is genuinely breaking — otherwise sends nothing.
@@ -25,7 +25,7 @@ config.yaml ──▶ digest_agent.py ──▶ Gemini (Google Search) ──▶
                                                                    │
                                           ┌────────────────────────┴───────────┐
                                           ▼                                     ▼
-                                 digests/YYYY-MM-DD.md                 Resend email → you
+                                 digests/YYYY-MM-DD-HHMM.md            Resend email → you
 ```
 
 ### Configure what it tracks
@@ -82,7 +82,7 @@ python digest_agent.py        # add DIGEST_DRY_RUN=1 to skip the email
 | `config.yaml` | Topics, watchlist, **undercut levers & alert triggers**, recipients, model. |
 | `digest_agent.py` | The agent: research → undercut analysis → email (daily + alerts modes). |
 | `knowledge_base/` | Kore.ai positioning + living competitor battlecards (the memory). |
-| `.github/workflows/daily-digest.yml` | Daily digest cron + manual trigger. |
+| `.github/workflows/daily-digest.yml` | Digest cron (every 12h) + manual trigger. |
 | `.github/workflows/undercut-alerts.yml` | Rapid-alert sweep every 4 hours. |
 | `digests/` | Dated archive of every daily digest. |
 | `alerts_state.json` | Dedup state for rapid alerts (auto-managed; prevents re-alerting the same event for 7 days). |

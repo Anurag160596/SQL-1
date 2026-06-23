@@ -32,6 +32,17 @@ model:
   max_retries: 4
   retry_backoff_seconds: 5
 
+# Honesty guard: how to handle a run where the model performed NO live web
+# search (zero grounding sources) — which on the free tier means it likely
+# recycled the knowledge base instead of finding fresh news.
+grounding:
+  # Daily digest: prepend a clear "KB-only / unverified" warning banner.
+  # (Always on; the banner makes stale content obvious instead of misleading.)
+  # If true, the daily digest is archived but NOT emailed when ungrounded.
+  skip_if_ungrounded: false
+  # Rapid alerts are ALWAYS suppressed when ungrounded (an alert with no live
+  # search can't be trusted) — not configurable.
+
 # How far back to look for "news" each run. Genuinely new competitor news is
 # sparse day-to-day in this market, so 72h gives enough fresh material while
 # staying recent. Every item is still date-stamped so nothing stale slips in.

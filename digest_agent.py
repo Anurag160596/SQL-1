@@ -290,7 +290,10 @@ def generate_digest(config: dict, prompt: str) -> str:
         text += "\n\n---\n\n### 📎 Grounding sources\n" + "\n".join(
             f"- [{title}]({url})" for title, url in sources
         )
-    return text
+    # Return the live-search source count so callers can gate on grounding:
+    # zero sources means the model answered without web search (likely recycling
+    # the knowledge base), so the digest must not be presented as fresh news.
+    return text, len(sources)
 
 
 def extract_sources(response) -> list[tuple[str, str]]:
@@ -428,9 +431,31 @@ nothing else:
 Never fabricate events or URLs. When in doubt, output {NO_ALERTS_SENTINEL}."""
 
 
+UNGROUNDED_BANNER = (
+    "> ⚠️ **KB-only run — no live web search succeeded.** The model returned no "
+    "grounding sources this run (likely free-tier throttling falling back to a "
+    "non-searching model), so the items below are drawn from the internal "
+    "knowledge base, not fresh search results. **Treat dates and \"news\" as "
+    "unverified / possibly stale.** Enable billing for reliable grounded search.\n\n"
+    "---\n\n"
+)
+
+
 def run_daily(config: dict, now_local: datetime, knowledge_base: str, dry_run: bool) -> None:
     prompt = build_prompt(config, now_local, knowledge_base)
-    digest = generate_digest(config, prompt)
+    digest, grounded = generate_digest(config, prompt)
+    guard = config.get("grounding", {})
+
+    if grounded == 0:
+        print("WARNING: no grounding sources — this run did not perform live search.")
+        digest = UNGROUNDED_BANNER + digest
+        if guard.get("skip_if_ungrounded", False):
+            save_digest(digest, now_local)
+            print("skip_if_ungrounded is set — archiving but NOT emailing the KB-only digest.")
+            return
+    else:
+        print(f"Grounded on {grounded} live source(s).")
+
     save_digest(digest, now_local)
     if dry_run:
         print("DIGEST_DRY_RUN set — skipping email.")
@@ -509,7 +534,13 @@ def _render_alert_markdown(events: list[dict], now_local: datetime) -> str:
 
 def run_alerts(config: dict, now_local: datetime, knowledge_base: str, dry_run: bool) -> None:
     prompt = build_alert_prompt(config, now_local, knowledge_base)
-    result = generate_digest(config, prompt)
+    result, grounded = generate_digest(config, prompt)
+
+    # An alert with no live search is untrustworthy (could be KB-derived/stale).
+    # Never fire an ungrounded alert.
+    if grounded == 0:
+        print("No grounding sources — alert run did not perform live search; suppressing.")
+        return
 
     head = result.split("\n", 1)[0].strip()
     if result.strip() == NO_ALERTS_SENTINEL or head == NO_ALERTS_SENTINEL:

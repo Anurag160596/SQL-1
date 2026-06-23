@@ -1,0 +1,111 @@
+# ============================================================
+# Agentic AI Daily Digest — configuration
+# Edit this file to tune what the agent tracks and where it sends.
+# No code changes needed.
+# ============================================================
+
+# Who receives the digest. Add more addresses to fan it out.
+recipients:
+  - anuragblr19@gmail.com
+
+email:
+  # Without a verified domain, Resend only sends from onboarding@resend.dev
+  # (and only to the address you signed up to Resend with).
+  from: "Agentic AI Digest <onboarding@resend.dev>"
+  subject_prefix: "🤖 Agentic AI Daily —"
+
+model:
+  # Gemini model with Google Search grounding. Override via GEMINI_MODEL env var.
+  # flash-lite is the reliable choice on the free tier. Upgrade to
+  # gemini-2.5-flash or gemini-2.5-pro (deeper) once billing is enabled.
+  name: gemini-2.5-flash-lite
+  # If the primary is overloaded (503) or over quota (429), the agent falls back
+  # through these in order.
+  fallbacks:
+    - gemini-2.5-flash
+  temperature: 0.4
+
+# How far back to look for "news" each run.
+lookback_hours: 24
+
+# ------------------------------------------------------------
+# Undercut engine — the openings the agent hunts for and how it
+# frames competitor news into actionable plays.
+# ------------------------------------------------------------
+undercut:
+  # Weaknesses the agent actively looks for across every competitor.
+  levers:
+    - "Pricing & TCO: price hikes, consumption-pricing pain, hidden costs, unpredictable total cost of ownership"
+    - "Proof & validation gaps: missing/withdrawn analyst recognition (Gartner/Forrester/Everest/IDC), thin customer evidence, weak or negative third-party reviews (G2, Peer Insights, TrustRadius)"
+    - "Channel & coverage gaps: voice-only or voice-first limits vs. true omnichannel, narrow geographic reach, narrow product scope"
+    - "Reliability, governance, security & compliance: outages, incidents, breaches, lack of determinism/auditability, compliance failures"
+    - "Any other exploitable opening: exec departures, layoffs, financial distress, lost/churned marquee customers, delayed or underwhelming launches, negative press, partnership breakups"
+
+  # High-value, time-sensitive events that justify an IMMEDIATE alert email
+  # (used by the rapid-alert run mode, not the daily digest).
+  alert_triggers:
+    - "Pricing change or major repackaging"
+    - "Outage, security incident, or data breach"
+    - "Executive departure or leadership shakeup"
+    - "Lost, churned, or publicly unhappy marquee customer"
+    - "Analyst downgrade, exclusion, or critical report"
+    - "Layoffs, down-round, or financial distress"
+    - "Major acquisition, merger, or partnership (or its collapse)"
+
+# Rapid-alert mode (DIGEST_MODE=alerts): short-window sweep that emails ONLY
+# when a high-value trigger above is genuinely breaking.
+alerts:
+  lookback_hours: 6
+  subject_prefix: "🚨 Undercut Alert —"
+
+# Timezone used to date the digest and the morning run.
+timezone: "Asia/Kolkata"
+
+# ------------------------------------------------------------
+# Broad topic areas the agent sweeps every day.
+# ------------------------------------------------------------
+topics:
+  - "Enterprise conversational AI & contact-center AI (CCAI): AI agents/virtual agents, voice AI, agent-assist, and CX automation platforms — product launches, customer wins, pricing moves"
+  - "Agentic AI platforms for the enterprise (Salesforce Agentforce, ServiceNow, Microsoft Copilot/Copilot Studio, Google CCAI, AWS, IBM watsonx Orchestrate) — releases and positioning"
+  - "Foundation-model & lab releases relevant to enterprise agents (OpenAI, Anthropic, Google DeepMind, Meta, Mistral) — tool use, voice, long-horizon reasoning, and what they mean for CX agents"
+  - "Analyst moves that matter in this market (Gartner MQ, Forrester Wave, Everest, IDC, Opus Research) — new reports, leader placements, rankings"
+  - "Funding rounds, M&A, earnings, partnerships, and enterprise adoption across customer-service / CX / agentic AI vendors"
+
+# ------------------------------------------------------------
+# Competitor / company watchlist — the agent PRIORITIZES news
+# about these and gives them a dedicated section.
+#
+# 'focus' tells the agent what to emphasize for that company.
+# Use "anything notable" for general tracking.
+#
+# >>> REPLACE THE STARTER LIST BELOW WITH YOUR REAL WATCHLIST <<<
+# ===== ADD YOURS HERE =====
+# ------------------------------------------------------------
+watchlist:
+  - name: "Sierra"
+    focus: "conversational AI agents, enterprise CX customers, funding, product launches"
+  - name: "Decagon"
+    focus: "AI customer-service agents, enterprise wins, funding, product"
+  - name: "Cresta"
+    focus: "contact-center AI, agent-assist, AI agents, enterprise customers, funding"
+  - name: "PolyAI"
+    focus: "voice AI agents, enterprise CX wins, funding, product, analyst recognition"
+  - name: "Parloa"
+    focus: "AI agent platform, contact-center deployments, funding, partnerships, analyst recognition"
+  - name: "Genesys"
+    focus: "Cloud CX, AI agents/Copilot, partnerships, earnings, IPO, analyst recognition"
+  - name: "NICE (Cognigy)"
+    focus: "NICE CXone, Cognigy acquisition/integration, AI agents, enterprise deals, earnings"
+  - name: "Five9"
+    focus: "AI agents, contact-center platform, partnerships, enterprise wins, earnings"
+  - name: "Glean"
+    focus: "enterprise AI agents, work assistants, funding, product, enterprise adoption"
+  - name: "Moveworks"
+    focus: "enterprise AI agents/ITSM & employee support, ServiceNow acquisition, product"
+  - name: "Agentforce (Salesforce)"
+    focus: "Agentforce releases, pricing, customer adoption, agentic CRM positioning"
+  - name: "ServiceNow Agent Platform"
+    focus: "AI Agents/Now Assist, agentic workflow platform, releases, enterprise adoption"
+  - name: "IBM Agent Platform"
+    focus: "watsonx Orchestrate / agentic AI, releases, partnerships, enterprise adoption"
+# ===== END WATCHLIST =====

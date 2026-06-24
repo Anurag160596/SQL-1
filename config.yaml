@@ -59,6 +59,48 @@ news:
   max_per_company: 5
   max_total: 40
 
+# ------------------------------------------------------------
+# Accuracy governance layer — vets every fetched news item BEFORE it can
+# enter the digest. Runs between fetch (Google News RSS) and synthesis.
+# Two gates: (1) deterministic source-quality + scope filter, (2) a model
+# review that confirms each item is genuinely ABOUT the named competitor and
+# on-topic, dropping misattributions, look-alikes, and SEO/finance filler.
+# This is what prevents e.g. an "Anthropic/Claude hack" story being filed
+# under "Sierra", or an "eGain/Zoom" story being filed under "Genesys".
+# ------------------------------------------------------------
+verification:
+  enabled: true
+  # Best-effort fetch the article text so the reviewer judges on real content,
+  # not just the headline. Falls back to headline-only if a fetch fails.
+  fetch_articles: true
+  fetch_timeout_seconds: 6
+  # When the reviewer is uncertain, drop the item (favor precision over recall).
+  drop_when_uncertain: true
+
+sources:
+  # Items from these domains are dropped outright — financial-data aggregators,
+  # SEO/press-spam, and re-syndicators that routinely mis-tag company names.
+  # Primary outlets, company newsrooms, and the major wires are kept.
+  blocked_domains:
+    - tipranks.com
+    - stocktitan.io
+    - stocktitan.net
+    - gurufocus.com
+    - simplywall.st
+    - insidermonkey.com
+    - pluang.com
+    - briefglance.com
+    - kavout.com
+    - aol.com
+    - benzinga.com
+    - marketbeat.com
+    - fool.com
+    - investing.com
+    - finance.yahoo.com
+    - sg.finance.yahoo.com
+    - ca.finance.yahoo.com
+    - msn.com
+
 # Honesty guard: how to handle a run where the model performed NO live web
 # search (zero grounding sources) — which on the free tier means it likely
 # recycled the knowledge base instead of finding fresh news.

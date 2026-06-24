@@ -399,6 +399,61 @@ def verify_news_items(config: dict, items: list[dict], now_local: datetime) -> l
     return kept
 
 
+def ground_digest(config: dict, digest_md: str, verified_items: list[dict]) -> str:
+    """Output-grounding governance: rewrite the finished digest so every dated
+    'What happened' claim and every priority-table row is supported by one of the
+    VERIFIED source items — deleting any claim, row, signal, or company drawn from
+    background knowledge rather than the actual news. Single best-effort model call;
+    on any failure it returns the digest unchanged (the input gates already ran)."""
+    if not config.get("verification", {}).get("audit_output", True) or not verified_items:
+        return digest_md
+    allowed = "\n".join(
+        f"- {it.get('competitor','')} | {it.get('date','')} | "
+        f"{it.get('source','')} | {it.get('title','')}"
+        for it in verified_items
+    )
+    prompt = f"""You are an accuracy editor. Below is (A) the COMPLETE list of verified \
+news items that are allowed to appear as "news", and (B) a competitive-intelligence \
+digest in Markdown.
+
+Rewrite the digest so that EVERY dated "What happened" sentence and EVERY row of the \
+priority table is directly supported by one of the verified items in (A). Apply these \
+edits and NOTHING else:
+- DELETE any signal, table row, "Watch for" bullet, or Sources entry whose factual \
+event is NOT in (A) — including claims clearly drawn from background knowledge (e.g. a \
+"multi-month outage", "lacks analyst validation", a pricing change) that no verified \
+item reports.
+- If deleting leaves a company with nothing, remove that company entirely.
+- Keep all SUPPORTED content verbatim. Do NOT add new facts, companies, dates, or \
+links. Keep the exact same section structure and headings.
+- The "What it means for Kore.ai" / "Kore.ai counter" framing may stay (it is opinion, \
+not news), as long as its companion "What happened" fact is supported.
+- If, after deletions, very little remains, that is correct — keep the bottom line \
+honest about a thin window. Never re-pad.
+
+Output ONLY the corrected Markdown digest — no preamble, no commentary.
+
+(A) VERIFIED ITEMS:
+{allowed}
+
+(B) DIGEST:
+{digest_md}"""
+    try:
+        revised, _ = generate_digest(config, prompt, use_search=False)
+    except SystemExit:
+        return digest_md
+    except Exception as exc:
+        print(f"  output-grounding skipped: {str(exc)[:100]}")
+        return digest_md
+    revised = (revised or "").strip()
+    # Sanity: a valid rewrite still starts with the H1 and isn't suspiciously tiny.
+    if not revised.startswith("#") or len(revised) < 200:
+        print("  output-grounding produced an unexpected result — keeping original.")
+        return digest_md
+    print("Output-grounding pass complete.")
+    return revised
+
+
 def build_prompt(
     config: dict,
     now_local: datetime,
@@ -456,6 +511,15 @@ frame the undercut angle using the knowledge base. You may drop trivial items.
 7. Honesty over volume: if <fresh_news> is thin or has nothing material, say \
 "Nothing material in the window" rather than padding. Never fabricate a date, a link, \
 or a development to fill space.
+8. OMIT, don't pad: if a watchlist company has NO item in <fresh_news>, give it NO \
+signal and NO table row. Cover only companies that actually have a fresh item — three \
+real rows beat ten invented ones.
+9. GROUNDING (critical): every "What happened" sentence and every table row MUST be \
+traceable to a SPECIFIC <fresh_news> item, and MUST use that item's source name and \
+link. NEVER turn a knowledge-base weakness into a dated event — e.g. do NOT write \
+"Genesys had a multi-month outage" or "Parloa lacks analyst validation" as today's news \
+unless an actual <fresh_news> item reports exactly that. The knowledge base is for \
+"What it means for Kore.ai" framing ONLY, never for the "What happened" fact.
 
 <fresh_news>
 {format_news_block(news_items)}
@@ -1122,6 +1186,9 @@ def run_daily(config: dict, now_local: datetime, knowledge_base: str, dry_run: b
         # Freshness comes from the RSS feed; the model only synthesises (no search).
         prompt = build_prompt(config, now_local, knowledge_base, news_items=news_items)
         digest, _ = generate_digest(config, prompt, use_search=False)
+        # Output-grounding governance: strip any claim the writer invented from the
+        # knowledge base so only verified-item facts survive.
+        digest = ground_digest(config, digest, news_items)
         grounded = len(news_items)
     else:
         # No pre-fetched news — fall back to model-side web search + grounding.

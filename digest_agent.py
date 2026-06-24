@@ -20,7 +20,9 @@ Optional environment variables:
 
 from __future__ import annotations
 
+import base64
 import hashlib
+import io
 import json
 import math
 import os
@@ -45,6 +47,19 @@ ALERT_STATE_PATH = ROOT / "alerts_state.json"
 ALERT_STATE_RETENTION_DAYS = 7
 KB_DIR = ROOT / "knowledge_base"
 KB_CHAR_BUDGET = 48000  # cap KB text injected into the prompt
+FONTS_DIR = ROOT / "assets" / "fonts"
+
+# PDF palette: blue + black fonts only (per spec), Inter Tight throughout.
+PDF_BLUE = "#1d4ed8"
+PDF_BLACK = "#000000"
+
+# Strip emoji/pictographs so the PDF stays strictly blue + black (no color glyphs
+# / tofu boxes). The descriptive text after each emoji is preserved.
+_EMOJI_RE = re.compile(
+    "[\U0001F000-\U0001FAFF\U00002600-\U000027BF\U0001F1E6-\U0001F1FF"
+    "\U00002190-\U000021FF\U00002B00-\U00002BFF\U00002300-\U000023FF️]",
+    flags=re.UNICODE,
+)
 
 
 def fail(msg: str) -> "NoReturn":  # type: ignore[name-defined]
@@ -465,8 +480,59 @@ def save_digest(markdown_text: str, now_local: datetime) -> Path:
     return out_path
 
 
+def render_pdf(markdown_text: str, now_local: datetime) -> bytes | None:
+    """Render the digest to a blue+black, Inter Tight PDF. Returns None on failure."""
+    try:
+        import markdown as md
+        from xhtml2pdf import pisa
+    except ImportError:
+        print("PDF deps missing (xhtml2pdf/markdown); skipping PDF.")
+        return None
+
+    clean = _EMOJI_RE.sub("", markdown_text)
+    body_html = md.markdown(clean, extensions=["extra", "sane_lists"])
+    reg = (FONTS_DIR / "InterTight-Regular.ttf").as_uri()
+    bold = (FONTS_DIR / "InterTight-Bold.ttf").as_uri()
+    html = f"""<html><head><meta charset="utf-8"><style>
+@page {{ size: A4; margin: 1.6cm 1.5cm; }}
+@font-face {{ font-family: 'Inter Tight'; src: url('{reg}'); font-weight: normal; }}
+@font-face {{ font-family: 'Inter Tight'; src: url('{bold}'); font-weight: bold; }}
+body {{ font-family: 'Inter Tight'; color: {PDF_BLACK}; font-size: 10.5pt; line-height: 1.4; }}
+h1 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 20pt; border-bottom: 1.5px solid {PDF_BLUE}; padding-bottom: 4px; }}
+h2 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 14pt; margin-top: 16px; }}
+h3 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 11.5pt; }}
+a {{ color: {PDF_BLUE}; text-decoration: none; }}
+strong, b {{ color: {PDF_BLACK}; font-weight: bold; }}
+li {{ margin-bottom: 3px; }}
+hr {{ border: none; border-top: 0.5px solid {PDF_BLUE}; }}
+</style></head><body>{body_html}</body></html>"""
+
+    buf = io.BytesIO()
+    try:
+        result = pisa.CreatePDF(src=html, dest=buf)
+    except Exception as exc:
+        print(f"PDF render failed: {str(exc)[:120]}")
+        return None
+    if result.err:
+        print("PDF render reported errors; skipping PDF.")
+        return None
+    return buf.getvalue()
+
+
+def save_pdf(pdf_bytes: bytes, now_local: datetime) -> Path:
+    DIGESTS_DIR.mkdir(exist_ok=True)
+    out_path = DIGESTS_DIR / f"{now_local.strftime('%Y-%m-%d-%H%M')}.pdf"
+    out_path.write_bytes(pdf_bytes)
+    print(f"Saved PDF to {out_path}")
+    return out_path
+
+
 def send_email(
-    config: dict, markdown_text: str, now_local: datetime, subject: str | None = None
+    config: dict,
+    markdown_text: str,
+    now_local: datetime,
+    subject: str | None = None,
+    attachments: "list[dict] | None" = None,
 ) -> None:
     api_key = os.environ.get("RESEND_API_KEY")
     if not api_key:
@@ -501,18 +567,22 @@ def send_email(
     if not recipients:
         fail("No recipients configured in config.yaml.")
 
+    payload = {
+        "from": sender,
+        "to": recipients,
+        "subject": subject,
+        "html": html,
+    }
+    if attachments:
+        payload["attachments"] = attachments
+
     resp = requests.post(
         "https://api.resend.com/emails",
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         },
-        json={
-            "from": sender,
-            "to": recipients,
-            "subject": subject,
-            "html": html,
-        },
+        json=payload,
         timeout=60,
     )
     if resp.status_code >= 300:
@@ -628,10 +698,21 @@ def run_daily(config: dict, now_local: datetime, knowledge_base: str, dry_run: b
         print(f"Grounded on {grounded} live source(s).")
 
     save_digest(digest, now_local)
+
+    # Render the PDF (Inter Tight, blue+black), archive it, and attach to the email.
+    attachments = None
+    pdf_bytes = render_pdf(digest, now_local)
+    if pdf_bytes:
+        save_pdf(pdf_bytes, now_local)
+        attachments = [{
+            "filename": f"agentic-ai-digest-{now_local.strftime('%Y-%m-%d-%H%M')}.pdf",
+            "content": base64.b64encode(pdf_bytes).decode("ascii"),
+        }]
+
     if dry_run:
         print("DIGEST_DRY_RUN set — skipping email.")
         return
-    send_email(config, digest, now_local)
+    send_email(config, digest, now_local, attachments=attachments)
     print("Done.")
 
 

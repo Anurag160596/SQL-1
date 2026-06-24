@@ -13,7 +13,8 @@ immediate email when a high-value competitor event breaks.
   competitor battlecards, injected into every run.
 - **Delivery:** email via [Resend](https://resend.com).
 - **Digest:** GitHub Actions cron every 12h at `02:30` & `14:30 UTC` (~08:00 & 20:00 IST).
-  Hero section: **⚔️ Undercut Opportunities.** Archived to [`digests/`](digests/) as `YYYY-MM-DD-HHMM.md`.
+  Hero section: **⚔️ Undercut Opportunities.** Archived to [`digests/`](digests/) as both
+  `YYYY-MM-DD-HHMM.md` and a **PDF** (Inter Tight, blue + black) which is also attached to the email.
 - **Rapid alerts:** GitHub Actions cron every 4 hours (`DIGEST_MODE=alerts`); emails
   **only** when a high-value trigger (price change, outage, exec exit, lost logo,
   analyst downgrade, M&A) is genuinely breaking — otherwise sends nothing.

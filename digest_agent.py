@@ -326,15 +326,24 @@ def verify_news_items(config: dict, items: list[dict], now_local: datetime) -> l
     if not vcfg.get("enabled", True) or not items:
         return items
 
-    blocked = {d.lower() for d in config.get("sources", {}).get("blocked_domains", [])}
+    scfg = config.get("sources", {})
+    blocked = {d.lower() for d in scfg.get("blocked_domains", [])}
+    blocked_names = [s.lower() for s in scfg.get("blocked_sources", [])]
     watch = {w.get("name", "") for w in config.get("watchlist", [])}
 
     # --- Gate 1: source-quality + scope ---
+    # Note: Google News RSS links are news.google.com redirects, so the publisher
+    # is identified by the RSS <source> NAME, not the URL domain — name-match first.
     gate1: list[dict] = []
     for it in items:
+        src_name = (it.get("source") or "").lower()
+        hit = next((b for b in blocked_names if b and b in src_name), None)
+        if hit:
+            print(f"  drop (blocked source '{it.get('source')}'): {it['title'][:70]}")
+            continue
         dom = _domain(it.get("url", ""))
         if dom and any(dom == b or dom.endswith("." + b) for b in blocked):
-            print(f"  drop (blocked source {dom}): {it['title'][:70]}")
+            print(f"  drop (blocked domain {dom}): {it['title'][:70]}")
             continue
         if watch and it.get("competitor") not in watch:
             print(f"  drop (off-watchlist {it.get('competitor')!r}): {it['title'][:60]}")

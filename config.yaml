@@ -78,9 +78,37 @@ verification:
   drop_when_uncertain: true
 
 sources:
-  # Items from these domains are dropped outright — financial-data aggregators,
-  # SEO/press-spam, and re-syndicators that routinely mis-tag company names.
-  # Primary outlets, company newsrooms, and the major wires are kept.
+  # PRIMARY gate: block by publication NAME (the RSS <source>), matched as a
+  # case-insensitive substring. This is what actually works, because Google News
+  # RSS links are news.google.com redirect URLs (so domain matching alone can't
+  # see the real publisher). These are financial-data aggregators, SEO/press-spam,
+  # and re-syndicators that routinely mis-tag company names. Primary outlets,
+  # company newsrooms, and the major wires (Reuters, Bloomberg, Business Wire,
+  # PR Newswire, TechCrunch, VentureBeat, ZDNet, CX Today, No Jitter…) are kept.
+  blocked_sources:
+    - tipranks
+    - stocktitan
+    - stock titan
+    - gurufocus
+    - simply wall
+    - simplywall
+    - insider monkey
+    - insidermonkey
+    - pluang
+    - briefglance
+    - brief glance
+    - kavout
+    - benzinga
+    - marketbeat
+    - motley fool
+    - investing.com
+    - yahoo finance
+    - "msn"
+    - mirror-democrat
+    - mirror democrat
+    - newswiretoday
+  # Secondary gate: block by domain too, for the rare item that arrives with a
+  # real publisher URL instead of a Google redirect.
   blocked_domains:
     - tipranks.com
     - stocktitan.io

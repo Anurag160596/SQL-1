@@ -21,6 +21,7 @@ Optional environment variables:
 from __future__ import annotations
 
 import base64
+import concurrent.futures
 import hashlib
 import io
 import json
@@ -60,9 +61,10 @@ PDF_BLACK = "#0b0f19"         # near-black for headings/body
 PDF_INK = "#1f2430"           # body text
 PDF_GREY = "#6b7280"          # eyebrows / meta / secondary
 PDF_GREY_SOFT = "#9aa3b2"     # Low priority dot
-PDF_RULE = "#dbe3f4"          # hairline rules / borders
-PDF_CARD_BG = "#f6f8fe"       # signal-card fill
-PDF_CALLOUT_BG = "#eef3fd"    # bottom-line / caveat box fill
+PDF_RULE = "#e2e6ee"          # hairline rules / borders (neutral grey)
+PDF_CARD_BORDER = "#d7deea"   # card border (neutral grey, not blue)
+PDF_CARD_BG = "#ffffff"       # signal-card fill: white, separated by borders
+PDF_CALLOUT_BG = "#f4f7fd"    # bottom-line / caveat box fill (very faint)
 
 # Strip emoji/pictographs so the PDF stays strictly blue + black (no color glyphs
 # / tofu boxes). The descriptive text after each emoji is preserved.
@@ -198,6 +200,196 @@ def format_news_block(items: list[dict]) -> str:
     return "\n".join(lines)
 
 
+# ------------------------------------------------------------
+# Accuracy governance layer
+# Vets fetched items before they reach the writer: a deterministic
+# source-quality + scope gate, then a model review that confirms each item is
+# genuinely ABOUT the named competitor and on-topic. Misattributions
+# (e.g. an Anthropic/Claude story filed under "Sierra"), look-alike companies,
+# and finance/SEO filler are dropped here so they can never enter the digest.
+# ------------------------------------------------------------
+
+_TAG_RE = re.compile(r"<[^>]+>")
+_WS_RE = re.compile(r"\s+")
+
+
+def _domain(url: str) -> str:
+    try:
+        host = urllib.parse.urlparse(url).netloc.lower()
+    except Exception:
+        return ""
+    return host[4:] if host.startswith("www.") else host
+
+
+def _fetch_article_excerpt(url: str, timeout: int, max_chars: int = 1500) -> str:
+    """Best-effort: fetch an article and return a plain-text excerpt. Returns ""
+    on any failure (the reviewer then judges from the headline + source)."""
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (digest-agent)"})
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            raw = resp.read(400_000)
+        html = raw.decode("utf-8", errors="ignore")
+        # Drop scripts/styles, then strip tags.
+        html = re.sub(r"(?is)<(script|style|noscript)[^>]*>.*?</\1>", " ", html)
+        text = _WS_RE.sub(" ", _TAG_RE.sub(" ", html)).strip()
+        return text[:max_chars]
+    except Exception:
+        return ""
+
+
+def _extract_json_array(text: str) -> "list | None":
+    """Pull a JSON array out of a model response (tolerant of code fences/prose)."""
+    m = re.search(r"```(?:json)?\s*(.*?)\s*```", text, re.DOTALL)
+    blob = m.group(1) if m else text
+    start, end = blob.find("["), blob.rfind("]")
+    if start == -1 or end <= start:
+        return None
+    try:
+        data = json.loads(blob[start : end + 1])
+    except json.JSONDecodeError:
+        return None
+    return data if isinstance(data, list) else None
+
+
+def _verify_review(config: dict, candidates: list[dict]) -> "dict[int, dict] | None":
+    """Ask the model to vet each candidate. Returns {index: verdict} or None if
+    the review itself could not be obtained (caller then fails safe)."""
+    lines = []
+    for c in candidates:
+        ex = c.get("excerpt", "")
+        ex = (" | excerpt: " + ex[:600]) if ex else ""
+        lines.append(
+            f'{{"i": {c["i"]}, "competitor": {json.dumps(c["competitor"])}, '
+            f'"headline": {json.dumps(c["title"])}, "source": {json.dumps(c.get("source",""))}'
+            f'}}  // {ex}'
+        )
+    drop_uncertain = config.get("verification", {}).get("drop_when_uncertain", True)
+    uncertain_rule = ("When you are NOT confident, set keep=false."
+                      if drop_uncertain else "When borderline, you may keep it.")
+    prompt = f"""You are an ACCURACY-GOVERNANCE reviewer for a Kore.ai competitive- \
+intelligence digest. You are given candidate news items, each tentatively tagged with a \
+competitor name (from a news-search query that is often wrong). Decide which items may \
+enter the digest.
+
+KEEP an item ONLY if ALL of these hold:
+1. ATTRIBUTION: the article is genuinely ABOUT the tagged competitor as a primary \
+subject or direct actor — NOT a passing mention, NOT a different company, and NOT a \
+different organisation that merely shares the name (e.g. a person, place, fund, or \
+unrelated firm called the same thing).
+2. TOPIC: it concerns enterprise conversational AI / contact-center / customer- \
+experience / agentic AI.
+3. SUBSTANCE: it is a real development (launch, funding, M&A, partnership, outage, exec \
+move, analyst report, customer win, pricing change) — NOT a stock-price blurb, listicle, \
+award roundup, generic survey, or SEO filler.
+{uncertain_rule}
+
+For EACH item return one JSON object with keys:
+- "i": the item's index (integer, unchanged)
+- "keep": true or false
+- "subject": the actual primary company/entity the article is about (string)
+- "reason": a short phrase justifying the decision
+
+Output ONLY a JSON array of these objects — nothing else.
+
+ITEMS:
+[
+{chr(10).join(lines)}
+]"""
+    try:
+        text, _ = generate_digest(config, prompt, use_search=False)
+    except SystemExit:
+        return None
+    except Exception as exc:
+        print(f"  verification review error: {str(exc)[:120]}")
+        return None
+    arr = _extract_json_array(text)
+    if arr is None:
+        print("  verification: could not parse reviewer output.")
+        return None
+    verdicts: dict[int, dict] = {}
+    for obj in arr:
+        if isinstance(obj, dict) and isinstance(obj.get("i"), int):
+            verdicts[obj["i"]] = obj
+    return verdicts
+
+
+def verify_news_items(config: dict, items: list[dict], now_local: datetime) -> list[dict]:
+    """Governance gate between fetch and synthesis. Returns the vetted subset.
+
+    Gate 1 (deterministic): drop blocked source domains and any item whose
+    competitor is not on the watchlist.
+    Gate 2 (model review): drop items the reviewer judges misattributed, off-topic,
+    or insubstantial. Fails SAFE — if the review can't be obtained, keep the
+    domain/scope-filtered items rather than emitting nothing.
+    """
+    vcfg = config.get("verification", {})
+    if not vcfg.get("enabled", True) or not items:
+        return items
+
+    blocked = {d.lower() for d in config.get("sources", {}).get("blocked_domains", [])}
+    watch = {w.get("name", "") for w in config.get("watchlist", [])}
+
+    # --- Gate 1: source-quality + scope ---
+    gate1: list[dict] = []
+    for it in items:
+        dom = _domain(it.get("url", ""))
+        if dom and any(dom == b or dom.endswith("." + b) for b in blocked):
+            print(f"  drop (blocked source {dom}): {it['title'][:70]}")
+            continue
+        if watch and it.get("competitor") not in watch:
+            print(f"  drop (off-watchlist {it.get('competitor')!r}): {it['title'][:60]}")
+            continue
+        gate1.append(it)
+    if not gate1:
+        return []
+
+    # --- Optional: fetch article text so the reviewer judges on real content ---
+    if vcfg.get("fetch_articles", True):
+        timeout = int(vcfg.get("fetch_timeout_seconds", 6))
+        urls = [it.get("url", "") for it in gate1]
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=8) as ex:
+                excerpts = list(ex.map(lambda u: _fetch_article_excerpt(u, timeout), urls))
+            for it, exc in zip(gate1, excerpts):
+                it["excerpt"] = exc
+        except Exception as exc:
+            print(f"  article prefetch skipped: {str(exc)[:80]}")
+
+    # --- Gate 2: model attribution/relevance review ---
+    candidates = [
+        {"i": idx, "competitor": it.get("competitor", ""), "title": it.get("title", ""),
+         "source": it.get("source", ""), "excerpt": it.get("excerpt", "")}
+        for idx, it in enumerate(gate1)
+    ]
+    verdicts = _verify_review(config, candidates)
+    if verdicts is None:
+        # Fail safe: reviewer unavailable — keep the gate-1 set (still source/scope-clean).
+        print("Verification review unavailable — keeping source/scope-filtered items.")
+        for it in gate1:
+            it.pop("excerpt", None)
+        return gate1
+
+    kept: list[dict] = []
+    for idx, it in enumerate(gate1):
+        it.pop("excerpt", None)
+        v = verdicts.get(idx)
+        if v is None:
+            if vcfg.get("drop_when_uncertain", True):
+                print(f"  drop (no verdict): {it['title'][:70]}")
+                continue
+            kept.append(it)
+            continue
+        if v.get("keep") is True:
+            kept.append(it)
+        else:
+            subj = v.get("subject", "?")
+            print(f"  drop (review: about {subj!r}; {v.get('reason','')[:60]}): "
+                  f"{it.get('competitor')} — {it['title'][:60]}")
+    print(f"Verification: {len(items)} fetched -> {len(gate1)} after source/scope "
+          f"-> {len(kept)} verified.")
+    return kept
+
+
 def build_prompt(
     config: dict,
     now_local: datetime,
@@ -240,18 +432,21 @@ provided below in <fresh_news>. Build the entire digest STRICTLY from these item
 2. Do NOT invent items, do NOT add anything not in <fresh_news>, and do NOT pull \
 "news" from the knowledge base or memory. Every item you report MUST correspond to \
 one in <fresh_news>, keeping its **(YYYY-MM-DD)** date and its source link.
-3. ATTRIBUTION CHECK (critical): attribute an item to a competitor ONLY if the \
-article is genuinely ABOUT that competitor. DROP the item if the competitor is just \
-mentioned in passing (as an example, comparison, or customer), if the story is \
-actually about a different company, or if it's a different organisation that merely \
-shares the name (e.g. a manufacturer, foundry, or nonprofit). NEVER restate another \
-company's funding/news under a competitor's name. When in doubt, drop it.
-4. Relevance: keep only items relevant to enterprise CX / contact-center / agentic \
+3. These items were ALREADY vetted by an accuracy-governance layer for \
+attribution and relevance. Still, attribute each item to a competitor ONLY if it is \
+genuinely ABOUT that competitor; if anything looks mis-tagged, DROP it.
+4. WATCHLIST-ONLY (critical): every competitor you name — in the signals, the priority \
+table, anywhere — MUST be one of the watchlist companies listed below, spelled exactly. \
+NEVER introduce, name, or create a row for any company that is not on the watchlist \
+(no MoEngage, no eGain, no Zoom, no Anthropic, etc.), even if it appears inside a \
+headline. If an item is really about a non-watchlist company, drop it.
+5. Relevance: keep only items relevant to enterprise CX / contact-center / agentic \
 AI. Drop unrelated items (sports sponsorships, manufacturing, generic stock blurbs).
-5. Judgement is yours: pick the most important items, group/synthesise them, and \
+6. Judgement is yours: pick the most important items, group/synthesise them, and \
 frame the undercut angle using the knowledge base. You may drop trivial items.
-6. Honesty over volume: if <fresh_news> is thin or has nothing material, say \
-"Nothing material in the window" rather than padding.
+7. Honesty over volume: if <fresh_news> is thin or has nothing material, say \
+"Nothing material in the window" rather than padding. Never fabricate a date, a link, \
+or a development to fill space.
 
 <fresh_news>
 {format_news_block(news_items)}
@@ -702,31 +897,31 @@ body {{ font-family: 'Inter Tight'; color: {PDF_INK}; font-size: 9.8pt; line-hei
 .cover-title {{ color: {PDF_BLACK}; font-size: 23pt; font-weight: bold; line-height: 1.1; margin: 1px 0 5px 0; }}
 .cover-meta {{ color: {PDF_GREY}; font-size: 8.2pt; margin: 0; }}
 
-/* Headings */
-h2 {{ color: {PDF_BLACK}; font-size: 13pt; font-weight: bold; margin: 2px 0 6px 0; }}
-h3 {{ color: {PDF_BLACK}; font-size: 10.5pt; font-weight: bold; margin: 0 0 4px 0; }}
+/* Headings — clear section separation via generous top margin + thin rule */
+h2 {{ color: {PDF_BLACK}; font-size: 13pt; font-weight: bold; margin: 6px 0 8px 0; padding-bottom: 4px; border-bottom: 0.75pt solid {PDF_RULE}; }}
+h3 {{ color: {PDF_BLACK}; font-size: 10.5pt; font-weight: bold; margin: 0 0 5px 0; }}
 a {{ color: {PDF_BLUE}; text-decoration: none; }}
 strong, b {{ color: {PDF_BLACK}; font-weight: bold; }}
 p {{ margin: 4px 0; }}
-li {{ margin-bottom: 3px; }}
-hr {{ border: none; border-top: 0.5pt solid {PDF_RULE}; margin: 10px 0; }}
+li {{ margin-bottom: 4px; }}
+hr {{ border: none; border-top: 0.5pt solid {PDF_RULE}; margin: 12px 0; }}
 
-/* Bottom-line / caveat callout */
-blockquote {{ background: {PDF_CALLOUT_BG}; border-left: 3pt solid {PDF_BLUE}; margin: 8px 0 4px 0; padding: 8px 11px; color: {PDF_BLACK}; }}
+/* Bottom-line callout — white with a strong blue left bar (kept very light, not a blue block) */
+blockquote {{ background: {PDF_CALLOUT_BG}; border: 0.75pt solid {PDF_CARD_BORDER}; border-left: 4pt solid {PDF_BLUE}; margin: 10px 0 6px 0; padding: 9px 12px; color: {PDF_BLACK}; }}
 blockquote strong {{ color: {PDF_BLUE}; }}
 blockquote p {{ margin: 0; }}
 
-/* Signal cards */
-.card {{ background: {PDF_CARD_BG}; border: 0.75pt solid {PDF_RULE}; border-left: 3pt solid {PDF_BLUE}; padding: 8px 11px; margin: 7px 0; }}
-.card h3 {{ color: {PDF_BLUE}; }}
-.card p {{ margin: 3px 0; }}
+/* Signal cards — WHITE fill, neutral grey border, blue left accent, clear gaps between */
+.card {{ background: {PDF_CARD_BG}; border: 0.75pt solid {PDF_CARD_BORDER}; border-left: 3pt solid {PDF_BLUE}; padding: 9px 13px; margin: 11px 0; }}
+.card h3 {{ color: {PDF_BLACK}; }}
+.card p {{ margin: 4px 0; }}
 .lbl {{ color: {PDF_GREY}; font-size: 6.6pt; letter-spacing: 1.2px; font-weight: bold; }}
 .lbl-blue {{ color: {PDF_BLUE}; }}
 
-/* Tables */
-table {{ border-collapse: collapse; width: 100%; font-size: 8.4pt; margin: 6px 0; }}
-th {{ background: {PDF_BLUE}; color: #ffffff; text-align: left; padding: 5px 7px; font-weight: bold; font-size: 7.8pt; letter-spacing: 0.4px; }}
-td {{ padding: 5px 7px; border-bottom: 0.5pt solid {PDF_RULE}; vertical-align: top; color: {PDF_INK}; }}
+/* Tables — white rows, neutral header band (blue kept to a thin accent rule), clear row separators */
+table {{ border-collapse: collapse; width: 100%; font-size: 8.4pt; margin: 8px 0; }}
+th {{ background: #f3f5fa; color: {PDF_BLACK}; text-align: left; padding: 6px 7px; font-weight: bold; font-size: 7.6pt; letter-spacing: 0.4px; border-bottom: 1.5pt solid {PDF_BLUE}; }}
+td {{ padding: 6px 7px; border-bottom: 0.5pt solid {PDF_RULE}; vertical-align: top; color: {PDF_INK}; }}
 td.threat {{ white-space: nowrap; font-weight: bold; color: {PDF_BLACK}; }}
 </style></head><body>
 <div id="headerContent">
@@ -912,6 +1107,7 @@ UNGROUNDED_BANNER = (
 def run_daily(config: dict, now_local: datetime, knowledge_base: str, dry_run: bool) -> None:
     guard = config.get("grounding", {})
     news_items = fetch_news(config, now_local)
+    news_items = verify_news_items(config, news_items, now_local)
 
     if news_items:
         # Freshness comes from the RSS feed; the model only synthesises (no search).
@@ -1024,6 +1220,7 @@ def _render_alert_markdown(events: list[dict], now_local: datetime) -> str:
 def run_alerts(config: dict, now_local: datetime, knowledge_base: str, dry_run: bool) -> None:
     alerts_lookback = int(config.get("alerts", {}).get("lookback_hours", 6))
     news_items = fetch_news(config, now_local, lookback_hours=alerts_lookback)
+    news_items = verify_news_items(config, news_items, now_local)
 
     if news_items:
         prompt = build_alert_prompt(config, now_local, knowledge_base, news_items=news_items)

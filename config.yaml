@@ -76,6 +76,12 @@ verification:
   fetch_timeout_seconds: 6
   # When the reviewer is uncertain, drop the item (favor precision over recall).
   drop_when_uncertain: true
+  # Output-grounding pass: after the digest is written, rewrite it so every dated
+  # "What happened" claim and every table row is backed by a verified item — deleting
+  # anything the model invented from background knowledge (e.g. recycling a past
+  # "outage" or "lacks analyst validation" as today's news). Best-effort; on failure
+  # the digest passes through unchanged (the input gates already ran).
+  audit_output: true
 
 sources:
   # PRIMARY gate: block by publication NAME (the RSS <source>), matched as a

@@ -44,9 +44,12 @@ model:
 # Note: OpenRouter has no Google Search grounding, so it's used for synthesis of
 # the pre-fetched RSS news (the primary daily path) — not the search fallback.
 openrouter:
+  # Ordered by preference. Stronger models first for analysis depth; cheaper ones
+  # as backups. Costs a few cents/run on the top models — adjust to taste.
   models:
+    - "anthropic/claude-3.5-sonnet"
+    - "meta-llama/llama-3.3-70b-instruct"
     - "openai/gpt-4o-mini"
-    - "google/gemini-2.0-flash-001"
 
 # Fresh-news sourcing via Google News RSS (free, no API key). The agent fetches
 # dated, in-window items per competitor and feeds them to the model to synthesize,

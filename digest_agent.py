@@ -312,35 +312,41 @@ courteous (professional, board-ready tone). Every factual claim carries an in-wi
 
 # Agentic AI — Executive Brief for Kore.ai Leadership ({today})
 
-**Bottom line:** 1–2 sentences — the single most important strategic takeaway from \
-today's competitive moves and what it means for Kore.ai. (The pyramid's apex.)
+> **Bottom line:** 1–2 sentences — the single most important strategic takeaway from \
+today's competitive moves and what it means for Kore.ai. (Output as a Markdown \
+blockquote, starting with `> **Bottom line:**`.)
 
 ## Executive summary
 Exactly **3 MECE key messages**, each ONE full sentence stating the insight **and** the \
-so-what for Kore.ai. These are the top-level supporting arguments — no sub-bullets.
+so-what for Kore.ai. Numbered list, no sub-bullets.
 
-## {{a governing-thought sentence for theme 1}}
-Group the day's developments into **2–4 MECE strategic themes**; each H2 above is a \
-full insight sentence (e.g. "Rivals are racing into voice self-service, but on \
-seat-based models Kore.ai can undercut on TCO."). Under each, 2–4 tight evidence \
-bullets — synthesize, don't repeat:
-- (YYYY-MM-DD) **Competitor — move**: the implication and where Kore.ai is advantaged \
-or exposed, in one line. [Source](url)
+## At a glance
+A Markdown TABLE of the day's material competitor moves — one row each, most \
+important first. Use exactly these columns:
 
-## Recommended actions for Kore.ai
-**3–5 decision-oriented bullets** — what leadership should do/decide now (messaging to \
-push, analyst narrative to seed, capability gap to close, deal play to arm). Concrete, \
-each ideally naming an owner function (Sales / PMM / AR / Product).
+| Competitor | Move (dated) | Threat | Kore.ai counter |
+|---|---|---|---|
+| Five9 | (2026-06-23) Launched Voice AI Agents — [Business Wire](url) | Med | Determinism + cost-per-outcome vs. seat model |
 
-## Appendix — sources
-The underlying dated items as one-liners with links, for traceability.
+- **Move (dated)** must start with **(YYYY-MM-DD)** and end with a clean Markdown \
+link whose text is the **publication name** (e.g. `[Business Wire](url)`), never a raw URL.
+- **Threat** = High / Med / Low (Kore.ai's exposure to this move).
+- **Kore.ai counter** = one short clause, grounded in a real proof point.
+- Only in-window, sourced rows. If nothing material today, write one line saying so.
+
+## Recommended actions
+**3–5 decision-oriented bullets** — the OVERALL actions for Kore.ai now (messaging to \
+push, analyst narrative to seed, capability gap to close, deal play to arm). \
+Do NOT tag actions by department/owner — keep them company-level.
+
+## Sources
+The underlying items as compact one-liners, each linked by publication name.
 
 ## Rules
-- Pyramid discipline: conclusion first; MECE groups; governing-thought headings; \
-no flat lists; no repetition across sections.
-- 7 Cs throughout; concise above all — short sentences, specifics over adjectives.
-- Every claim sourced and within the window; never fabricate. If nothing is material \
-today, say so in the Bottom line and keep the brief to a few lines."""
+- Pyramid discipline: conclusion (bottom line) first, then summary, then the table.
+- 7 Cs throughout; concise — short cells, specifics over adjectives.
+- Every row sourced and within the window; never fabricate. If nothing is material \
+today, say so in the Bottom line and keep it short."""
 
 
 def generate_digest(config: dict, prompt: str, use_search: bool = True):
@@ -533,14 +539,19 @@ def render_pdf(markdown_text: str, now_local: datetime) -> bytes | None:
 }}
 @font-face {{ font-family: 'Inter Tight'; src: url('{reg}'); font-weight: normal; }}
 @font-face {{ font-family: 'Inter Tight'; src: url('{bold}'); font-weight: bold; }}
-body {{ font-family: 'Inter Tight'; color: {PDF_BLACK}; font-size: 10.5pt; line-height: 1.4; }}
-h1 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 19pt; border-bottom: 1.5px solid {PDF_BLUE}; padding-bottom: 4px; }}
-h2 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 13pt; margin-top: 15px; }}
+body {{ font-family: 'Inter Tight'; color: {PDF_BLACK}; font-size: 10pt; line-height: 1.4; }}
+h1 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 19pt; margin-bottom: 2px; }}
+h2 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 13pt; margin-top: 15px; border-bottom: 1px solid #c7d2fe; padding-bottom: 2px; }}
 h3 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 11.5pt; }}
 a {{ color: {PDF_BLUE}; text-decoration: none; }}
 strong, b {{ color: {PDF_BLACK}; font-weight: bold; }}
 li {{ margin-bottom: 3px; }}
-hr {{ border: none; border-top: 0.5px solid {PDF_BLUE}; }}
+hr {{ border: none; border-top: 0.5px solid #c7d2fe; }}
+blockquote {{ background: #f1f5f9; border-left: 3px solid {PDF_BLUE}; margin: 8px 0; padding: 7px 10px; }}
+blockquote strong {{ color: {PDF_BLUE}; }}
+table {{ border-collapse: collapse; width: 100%; font-size: 8.7pt; margin: 6px 0; }}
+th {{ background: #f1f5f9; color: {PDF_BLUE}; text-align: left; padding: 5px 6px; border-bottom: 1.5px solid #c7d2fe; }}
+td {{ padding: 5px 6px; border-bottom: 0.5px solid #c7d2fe; vertical-align: top; }}
 #footerContent {{ color: {PDF_BLUE}; font-size: 7.5pt; }}
 </style></head><body>
 <div id="footerContent">Confidential — Kore.ai Competitive Intelligence · Generated {stamp} · Page <pdf:pagenumber>/<pdf:pagecount></div>

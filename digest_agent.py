@@ -418,7 +418,14 @@ def generate_digest(config: dict, prompt: str, use_search: bool = True):
         if response is not None:
             break
     if response is None:
-        fail(f"All candidate models failed ({', '.join(candidates)}). Last error: {last_err}")
+        # Gemini exhausted (free-tier 503/429). Fall back to OpenRouter, which has
+        # separate capacity. Fine for our primary path since the model is given the
+        # pre-fetched RSS news and doesn't need Google Search grounding here.
+        text = _generate_openrouter(config, prompt, temperature)
+        if text:
+            return text, 0
+        fail(f"All Gemini candidates failed ({', '.join(candidates)}) and OpenRouter "
+             f"fallback unavailable/failed. Last Gemini error: {last_err}")
 
     text = (getattr(response, "text", None) or "").strip()
     if not text:
@@ -433,6 +440,50 @@ def generate_digest(config: dict, prompt: str, use_search: bool = True):
     # zero sources means the model answered without web search (likely recycling
     # the knowledge base), so the digest must not be presented as fresh news.
     return text, len(sources)
+
+
+def _generate_openrouter(config: dict, prompt: str, temperature: float) -> str | None:
+    """Fallback brain via OpenRouter (OpenAI-compatible). Tries each configured
+    model in order. Returns the digest text, or None if unavailable/failed."""
+    key = os.environ.get("OPEN_ROUTER_API_KEY")
+    if not key:
+        return None
+    models = config.get("openrouter", {}).get(
+        "models", ["openai/gpt-4o-mini", "google/gemini-2.0-flash-001"]
+    )
+    for model in models:
+        print(f"Gemini exhausted — trying OpenRouter model {model}...")
+        try:
+            resp = requests.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": "https://github.com/Anurag160596/SQL-1",
+                    "X-Title": "Agentic AI Digest",
+                },
+                json={
+                    "model": model,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "temperature": temperature,
+                },
+                timeout=120,
+            )
+        except Exception as exc:
+            print(f"  OpenRouter {model} request error: {str(exc)[:120]}")
+            continue
+        if resp.status_code >= 300:
+            print(f"  OpenRouter {model} -> {resp.status_code}: {resp.text[:160]}")
+            continue
+        try:
+            text = (resp.json()["choices"][0]["message"]["content"] or "").strip()
+        except Exception as exc:
+            print(f"  OpenRouter {model} parse error: {str(exc)[:120]}")
+            continue
+        if text:
+            print(f"  -> synthesized via OpenRouter:{model}")
+            return text
+    return None
 
 
 def extract_sources(response) -> list[tuple[str, str]]:

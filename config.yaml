@@ -38,6 +38,16 @@ model:
   max_retries: 4
   retry_backoff_seconds: 5
 
+# Fallback brain: if Gemini is exhausted (free-tier 503/429 across all retries),
+# the agent synthesizes the digest via OpenRouter instead (separate capacity).
+# Needs the OPEN_ROUTER_API_KEY secret. Models are tried in order; edit freely.
+# Note: OpenRouter has no Google Search grounding, so it's used for synthesis of
+# the pre-fetched RSS news (the primary daily path) — not the search fallback.
+openrouter:
+  models:
+    - "openai/gpt-4o-mini"
+    - "google/gemini-2.0-flash-001"
+
 # Fresh-news sourcing via Google News RSS (free, no API key). The agent fetches
 # dated, in-window items per competitor and feeds them to the model to synthesize,
 # instead of relying on the model to search (which the free tier throttles).

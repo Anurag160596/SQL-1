@@ -444,12 +444,12 @@ def ground_digest(config: dict, digest_md: str, verified_items: list[dict]) -> s
         return digest_md
     allowed = "\n".join(
         f"- {it.get('competitor','')} | {it.get('date','')} | "
-        f"{it.get('source','')} | {it.get('title','')}"
+        f"{it.get('source','')} | {it.get('title','')} | {it.get('url','')}"
         for it in verified_items
     )
     prompt = f"""You are an accuracy editor. Below is (A) the COMPLETE list of verified \
-news items that are allowed to appear as "news", and (B) a competitive-intelligence \
-digest in Markdown.
+news items that are allowed to appear as "news" (each line ends with its real URL), and \
+(B) a competitive-intelligence digest in Markdown.
 
 Rewrite the digest so that EVERY dated "What happened" sentence and EVERY row of the \
 priority table is directly supported by one of the verified items in (A). Apply these \
@@ -459,8 +459,15 @@ event is NOT in (A) — including claims clearly drawn from background knowledge
 "multi-month outage", "lacks analyst validation", a pricing change) that no verified \
 item reports.
 - If deleting leaves a company with nothing, remove that company entirely.
-- Keep all SUPPORTED content verbatim. Do NOT add new facts, companies, dates, or \
-links. Keep the exact same section structure and headings.
+- Keep all SUPPORTED content VERBATIM. Do NOT add new facts, companies, or dates.
+- PRESERVE MARKDOWN LINKS (critical): every kept "What happened" sentence, every kept \
+priority-table "Move (dated)" cell, and every kept Sources line MUST end with a \
+`[Publication](url)` Markdown link, where the url is taken from the matching verified \
+item in (A). NEVER output a source as plain text (e.g. write `[CX Today](https://...)`, \
+never just `CX Today`). NEVER invent a URL — only use URLs that appear in (A).
+- Keep the exact same section structure and headings (H1, bottom-line blockquote, \
+"## Three signals that matter" with `###` H3 cards, "## Signal priority table", \
+"## Watch for", "## Recommended actions", "## Sources").
 - The "What it means for Kore.ai" / "Kore.ai counter" framing may stay (it is opinion, \
 not news), as long as its companion "What happened" fact is supported.
 - If, after deletions, very little remains, that is correct — keep the bottom line \

@@ -299,36 +299,48 @@ Prioritize and specifically search for news about each of these companies:
 These are the weaknesses to look for. Any new evidence of one is an opening:
 {lever_lines}
 
-## Output format (Markdown only — no preamble, no "here is your digest")
-Keep the WHOLE digest concise. Every item MUST begin with its publication date as \
-**(YYYY-MM-DD)** and a working source link; drop anything without a verifiable \
-in-window date. Do NOT repeat an item across sections. Start directly with the H1.
+## Output format — Executive Brief (Markdown only; no preamble)
+AUDIENCE: **Kore.ai executives.** Write a crisp executive brief, NOT a news list.
+Apply the **Pyramid Principle (Minto / McKinsey)**: lead with the answer, then support
+it with MECE (mutually exclusive, collectively exhaustive) grouped arguments —
+synthesize, never a flat chronological list. Every section heading is a full
+**governing-thought sentence** (an insight), not a topic label. Apply the **7 Cs**:
+clear, concise, concrete (names/numbers/dates), correct (every claim sourced and
+in-window), coherent (logical top-down flow), complete (covers the material moves),
+courteous (professional, board-ready tone). Every factual claim carries an in-window
+**(YYYY-MM-DD)** date and a working source link. Start directly with the H1.
 
-# Agentic AI Daily Digest — {today}
+# Agentic AI — Executive Brief for Kore.ai Leadership ({today})
 
-**TL;DR** — up to 3 crisp bullets: the most important moves today.
+**Bottom line:** 1–2 sentences — the single most important strategic takeaway from \
+today's competitive moves and what it means for Kore.ai. (The pyramid's apex.)
 
-## ⚔️ Moves & Kore.ai's Counter
-The core section. One entry per genuinely new, material competitor development \
-(group by competitor). Be tight — exactly three one-line points per entry, no \
-padding, no extra prose. If nothing is material today, say so in one line.
+## Executive summary
+Exactly **3 MECE key messages**, each ONE full sentence stating the insight **and** the \
+so-what for Kore.ai. These are the top-level supporting arguments — no sub-bullets.
 
-- **[Competitor] — <event>** (YYYY-MM-DD) — [Source](url)
-  - **What it means:** the significance in one concise line.
-  - **Value for their stakeholders:** the value this move creates for the \
-competitor's stakeholders (enterprise CX buyers, customers, users) — one line.
-  - **How Kore.ai creates more value:** how Kore.ai counters and delivers GREATER \
-value to those stakeholders — one line, grounded in a real proof point (ABL \
-determinism, true omnichannel, multi-model routing, 6x analyst Leader status, etc.).
+## {{a governing-thought sentence for theme 1}}
+Group the day's developments into **2–4 MECE strategic themes**; each H2 above is a \
+full insight sentence (e.g. "Rivals are racing into voice self-service, but on \
+seat-based models Kore.ai can undercut on TCO."). Under each, 2–4 tight evidence \
+bullets — synthesize, don't repeat:
+- (YYYY-MM-DD) **Competitor — move**: the implication and where Kore.ai is advantaged \
+or exposed, in one line. [Source](url)
 
-## ⚡ Quick Hits
-Everything else worth knowing as one-liners: **(YYYY-MM-DD) item — [Source](url)**. \
-No analysis. Omit if there's nothing.
+## Recommended actions for Kore.ai
+**3–5 decision-oriented bullets** — what leadership should do/decide now (messaging to \
+push, analyst narrative to seed, capability gap to close, deal play to arm). Concrete, \
+each ideally naming an owner function (Sales / PMM / AR / Product).
+
+## Appendix — sources
+The underlying dated items as one-liners with links, for traceability.
 
 ## Rules
-- Every claim needs a real, working source link tied to an in-window item. Never fabricate.
-- Concise above all: short lines, specific (names/numbers/dates), no hype, no repetition.
-- "Stakeholders" = the enterprise CX buyers/customers/users both sides are competing to serve."""
+- Pyramid discipline: conclusion first; MECE groups; governing-thought headings; \
+no flat lists; no repetition across sections.
+- 7 Cs throughout; concise above all — short sentences, specifics over adjectives.
+- Every claim sourced and within the window; never fabricate. If nothing is material \
+today, say so in the Bottom line and keep the brief to a few lines."""
 
 
 def generate_digest(config: dict, prompt: str, use_search: bool = True):
@@ -462,19 +474,26 @@ def render_pdf(markdown_text: str, now_local: datetime) -> bytes | None:
     body_html = md.markdown(clean, extensions=["extra", "sane_lists"])
     reg = (FONTS_DIR / "InterTight-Regular.ttf").as_uri()
     bold = (FONTS_DIR / "InterTight-Bold.ttf").as_uri()
+    stamp = now_local.strftime("%d %b %Y %H:%M %Z")
     html = f"""<html><head><meta charset="utf-8"><style>
-@page {{ size: A4; margin: 1.6cm 1.5cm; }}
+@page {{
+  size: A4; margin: 1.7cm 1.5cm 2.1cm 1.5cm;
+  @frame footer_frame {{ -pdf-frame-content: footerContent; bottom: 1cm; margin-left: 1.5cm; margin-right: 1.5cm; height: 1cm; }}
+}}
 @font-face {{ font-family: 'Inter Tight'; src: url('{reg}'); font-weight: normal; }}
 @font-face {{ font-family: 'Inter Tight'; src: url('{bold}'); font-weight: bold; }}
 body {{ font-family: 'Inter Tight'; color: {PDF_BLACK}; font-size: 10.5pt; line-height: 1.4; }}
-h1 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 20pt; border-bottom: 1.5px solid {PDF_BLUE}; padding-bottom: 4px; }}
-h2 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 14pt; margin-top: 16px; }}
+h1 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 19pt; border-bottom: 1.5px solid {PDF_BLUE}; padding-bottom: 4px; }}
+h2 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 13pt; margin-top: 15px; }}
 h3 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 11.5pt; }}
 a {{ color: {PDF_BLUE}; text-decoration: none; }}
 strong, b {{ color: {PDF_BLACK}; font-weight: bold; }}
 li {{ margin-bottom: 3px; }}
 hr {{ border: none; border-top: 0.5px solid {PDF_BLUE}; }}
-</style></head><body>{body_html}</body></html>"""
+#footerContent {{ color: {PDF_BLUE}; font-size: 7.5pt; }}
+</style></head><body>
+<div id="footerContent">Confidential — Kore.ai Competitive Intelligence · Generated {stamp} · Page <pdf:pagenumber>/<pdf:pagecount></div>
+{body_html}</body></html>"""
 
     buf = io.BytesIO()
     try:

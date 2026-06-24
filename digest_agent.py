@@ -399,6 +399,41 @@ def verify_news_items(config: dict, items: list[dict], now_local: datetime) -> l
     return kept
 
 
+def _norm_url(u: str) -> str:
+    """Host + path, lowercased, no query/fragment/trailing slash — for matching a
+    model-written URL back to a verified source item despite ?oc=5-style variation."""
+    try:
+        p = urllib.parse.urlparse(u.strip())
+    except Exception:
+        return u.strip().lower()
+    return (p.netloc.lower() + p.path.rstrip("/")).lower()
+
+
+def bind_links(digest_md: str, verified_items: list[dict]) -> str:
+    """Deterministic link governance: keep a Markdown hyperlink ONLY if its URL
+    matches one of the verified source items; otherwise drop the hyperlink and keep
+    the plain text. This guarantees the digest can never show a hallucinated or
+    mismatched URL (e.g. a 'Petty Products / Agentforce' citation that secretly
+    points at a Decagon valuation page)."""
+    if not verified_items:
+        return digest_md
+    allowed = {_norm_url(it.get("url", "")) for it in verified_items if it.get("url")}
+    dropped = 0
+
+    def _repl(m: "re.Match") -> str:
+        nonlocal dropped
+        text, url = m.group(1), m.group(2)
+        if _norm_url(url) in allowed:
+            return m.group(0)
+        dropped += 1
+        return text  # unlink: keep the publication name, drop the bad URL
+
+    out = re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", _repl, digest_md)
+    if dropped:
+        print(f"Link governance: unlinked {dropped} URL(s) not matching a verified source.")
+    return out
+
+
 def ground_digest(config: dict, digest_md: str, verified_items: list[dict]) -> str:
     """Output-grounding governance: rewrite the finished digest so every dated
     'What happened' claim and every priority-table row is supported by one of the
@@ -1189,6 +1224,9 @@ def run_daily(config: dict, now_local: datetime, knowledge_base: str, dry_run: b
         # Output-grounding governance: strip any claim the writer invented from the
         # knowledge base so only verified-item facts survive.
         digest = ground_digest(config, digest, news_items)
+        # Link governance: bind every hyperlink to a verified source URL; unlink the
+        # rest so a hallucinated/mismatched URL can never appear.
+        digest = bind_links(digest, news_items)
         grounded = len(news_items)
     else:
         # No pre-fetched news — fall back to model-side web search + grounding.

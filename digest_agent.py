@@ -50,8 +50,19 @@ KB_CHAR_BUDGET = 48000  # cap KB text injected into the prompt
 FONTS_DIR = ROOT / "assets" / "fonts"
 
 # PDF palette: blue + black fonts only (per spec), Inter Tight throughout.
-PDF_BLUE = "#1d4ed8"
-PDF_BLACK = "#000000"
+# A restrained, on-brand scale — every text colour is blue or black/near-black;
+# greys are reserved for structural labels (eyebrows, meta, rules) as in the
+# reference design. Priority dots use a blue-intensity scale (not traffic-light)
+# to keep the strict blue+black palette.
+PDF_BLUE = "#1d4ed8"          # primary accent (kore.ai blue)
+PDF_BLUE_SOFT = "#93b4f5"     # muted blue (Med priority)
+PDF_BLACK = "#0b0f19"         # near-black for headings/body
+PDF_INK = "#1f2430"           # body text
+PDF_GREY = "#6b7280"          # eyebrows / meta / secondary
+PDF_GREY_SOFT = "#9aa3b2"     # Low priority dot
+PDF_RULE = "#dbe3f4"          # hairline rules / borders
+PDF_CARD_BG = "#f6f8fe"       # signal-card fill
+PDF_CALLOUT_BG = "#eef3fd"    # bottom-line / caveat box fill
 
 # Strip emoji/pictographs so the PDF stays strictly blue + black (no color glyphs
 # / tofu boxes). The descriptive text after each emoji is preserved.
@@ -299,40 +310,61 @@ Prioritize and specifically search for news about each of these companies:
 These are the weaknesses to look for. Any new evidence of one is an opening:
 {lever_lines}
 
-## Output format — Executive Brief (Markdown only; no preamble)
-AUDIENCE: **Kore.ai executives.** Write a crisp executive brief, NOT a news list.
-Apply the **Pyramid Principle (Minto / McKinsey)**: lead with the answer, then support
-it with MECE (mutually exclusive, collectively exhaustive) grouped arguments —
-synthesize, never a flat chronological list. Every section heading is a full
-**governing-thought sentence** (an insight), not a topic label. Apply the **7 Cs**:
-clear, concise, concrete (names/numbers/dates), correct (every claim sourced and
-in-window), coherent (logical top-down flow), complete (covers the material moves),
-courteous (professional, board-ready tone). Every factual claim carries an in-window
-**(YYYY-MM-DD)** date and a working source link. Start directly with the H1.
+## Output format — Competitive Signal Report (Markdown only; no preamble)
+AUDIENCE: **Kore.ai executives.** This is a polished, board-ready competitive \
+**Signal Report**, NOT a news list. Apply the **Pyramid Principle (Minto / McKinsey)**: \
+lead with the answer, then support with MECE grouped arguments — synthesize, never a \
+flat chronological list. Apply the **7 Cs**: clear, concise, concrete (names/numbers/ \
+dates), correct (every claim sourced and in-window), coherent, complete, courteous \
+(professional, board tone). Every factual claim carries an in-window **(YYYY-MM-DD)** \
+date and a working source link whose text is the **publication name** (e.g. \
+`[Reuters](url)`), never a raw URL. Follow the exact skeleton below — same headings, \
+same order. Start directly with the H1.
 
-# Agentic AI — Executive Brief for Kore.ai Leadership ({today})
+# Competitive Signal Report — Enterprise AI Platform ({today})
 
 > **Bottom line:** 1–2 sentences — the single most important strategic takeaway from \
-today's competitive moves and what it means for Kore.ai. (Output as a Markdown \
-blockquote, starting with `> **Bottom line:**`.)
+today's competitive moves and what it means for Kore.ai. (Markdown blockquote, starting \
+with `> **Bottom line:**`.)
 
-## Executive summary
-Exactly **3 MECE key messages**, each ONE full sentence stating the insight **and** the \
-so-what for Kore.ai. Numbered list, no sub-bullets.
+## Three signals that matter
+The **three most important** moves this run, each as its own block. For EACH signal use \
+exactly this shape (the title is an H3 whose final 2–4 words are the sharp insight; the \
+two bold labels MUST appear verbatim, each starting its own line):
 
-## At a glance
-A Markdown TABLE of the day's material competitor moves — one row each, most \
-important first. Use exactly these columns:
+### {{Short insight headline for signal 1}}
+**What happened —** (YYYY-MM-DD) one or two concrete sentences with names/numbers, \
+ending in a `[Publication](url)` link.
+**What it means for Kore.ai —** one or two sentences: the threat/opening AND the \
+specific Kore.ai counter or positioning move (grounded in a real proof point).
+
+### {{Short insight headline for signal 2}}
+**What happened —** …
+**What it means for Kore.ai —** …
+
+### {{Short insight headline for signal 3}}
+**What happened —** …
+**What it means for Kore.ai —** …
+
+(If fewer than three material signals exist this run, output only the ones that are \
+real — never pad.)
+
+## Signal priority table
+A Markdown TABLE of the run's material competitor moves — one row each, highest threat \
+first. Use exactly these columns:
 
 | Competitor | Move (dated) | Threat | Kore.ai counter |
 |---|---|---|---|
-| Five9 | (2026-06-23) Launched Voice AI Agents — [Business Wire](url) | Med | Determinism + cost-per-outcome vs. seat model |
+| Five9 | (2026-06-23) Launched Voice AI Agents — [Business Wire](url) | High | Determinism + cost-per-outcome vs. seat model |
 
-- **Move (dated)** must start with **(YYYY-MM-DD)** and end with a clean Markdown \
-link whose text is the **publication name** (e.g. `[Business Wire](url)`), never a raw URL.
-- **Threat** = High / Med / Low (Kore.ai's exposure to this move).
+- **Move (dated)** starts with **(YYYY-MM-DD)** and ends with a `[Publication](url)` link.
+- **Threat** = exactly one of `High` / `Med` / `Low` (Kore.ai's exposure).
 - **Kore.ai counter** = one short clause, grounded in a real proof point.
-- Only in-window, sourced rows. If nothing material today, write one line saying so.
+- Only in-window, sourced rows. If nothing material this run, write one line saying so.
+
+## Watch for
+**2–4 short bullets** — developing situations to monitor (not yet material, but could \
+become so). One line each. Omit the section entirely if there is nothing to watch.
 
 ## Recommended actions
 **3–5 decision-oriented bullets** — the OVERALL actions for Kore.ai now (messaging to \
@@ -343,10 +375,11 @@ Do NOT tag actions by department/owner — keep them company-level.
 The underlying items as compact one-liners, each linked by publication name.
 
 ## Rules
-- Pyramid discipline: conclusion (bottom line) first, then summary, then the table.
+- Pyramid discipline: bottom line first, then the three signals, then the table.
+- Use H3 (`###`) ONLY for the three signal headlines — nowhere else.
 - 7 Cs throughout; concise — short cells, specifics over adjectives.
-- Every row sourced and within the window; never fabricate. If nothing is material \
-today, say so in the Bottom line and keep it short."""
+- Every claim sourced and within the window; never fabricate. If nothing is material \
+this run, say so in the Bottom line and keep it short."""
 
 
 def generate_digest(config: dict, prompt: str, use_search: bool = True):
@@ -439,7 +472,7 @@ def generate_digest(config: dict, prompt: str, use_search: bool = True):
 
     sources = extract_sources(response)
     if sources:
-        text += "\n\n---\n\n### 📎 Grounding sources\n" + "\n".join(
+        text += "\n\n---\n\n## 📎 Grounding sources\n" + "\n".join(
             f"- [{title}]({url})" for title, url in sources
         )
     # Return the live-search source count so callers can gate on grounding:
@@ -518,8 +551,116 @@ def save_digest(markdown_text: str, now_local: datetime) -> Path:
     return out_path
 
 
-def render_pdf(markdown_text: str, now_local: datetime) -> bytes | None:
-    """Render the digest to a blue+black, Inter Tight PDF. Returns None on failure."""
+# Small gray uppercase "eyebrow" labels injected above known sections, mirroring
+# the reference report's two-tier (eyebrow + heading) section style. Matched by a
+# lowercase substring of the H2 text; unmatched H2s simply render without one.
+_SECTION_EYEBROWS = [
+    ("three signals", "WHAT MATTERS THIS RUN"),
+    ("signal priority", "AT A GLANCE"),
+    ("watch for", "ON THE RADAR"),
+    ("recommended actions", "SO WHAT — DO THIS NOW"),
+    ("sources", "EVIDENCE TRAIL"),
+    ("grounding sources", "EVIDENCE TRAIL"),
+]
+
+
+def _wordmark_html() -> str:
+    """kore.ai text wordmark: black 'kore' + blue '.ai' (on-brand, no logo asset)."""
+    return (
+        f"<span style='font-weight:bold;color:{PDF_BLACK};font-size:11pt;'>kore"
+        f"<span style='color:{PDF_BLUE};'>.ai</span></span>"
+    )
+
+
+def _build_cover_html(title_text: str, now_local: datetime, config: dict) -> str:
+    """Styled cover block that replaces the model's first H1: blue eyebrow, big
+    title with the final keyword in blue, and a grey meta line."""
+    lookback = int((config or {}).get("lookback_hours", 72))
+    # Trim any "— …" / "(…)" suffix so the big title stays short like the reference
+    # (the topic/date live in the meta line and running header).
+    short = re.split(r"\s+[—\-(]", title_text)[0].strip() or title_text
+    # Highlight the keyword "Signal" in blue (fallback: the last word).
+    if re.search(r"\bSignal\b", short):
+        title_html = re.sub(r"\b(Signal)\b", rf"<span style='color:{PDF_BLUE};'>\1</span>", short, count=1)
+    else:
+        bits = short.rsplit(" ", 1)
+        title_html = (f"{bits[0]} <span style='color:{PDF_BLUE};'>{bits[1]}</span>"
+                      if len(bits) == 2 else short)
+    date_str = now_local.strftime("%A, %d %B %Y · %H:%M %Z")
+    return (
+        "<div class='cover'>"
+        "<div class='eyebrow' style='color:{blue};'>KORE.AI COMPETITIVE INTELLIGENCE</div>"
+        "<div class='cover-title'>{title}</div>"
+        "<div class='cover-meta'>Topic: Enterprise agentic AI &amp; contact-center AI (CCAI) &nbsp;·&nbsp; "
+        "Window: last {lb}h &nbsp;·&nbsp; {date}</div>"
+        "<div class='cover-meta'>Prepared by Kore.ai Competitive Intelligence</div>"
+        "</div>"
+    ).format(blue=PDF_BLUE, title=title_html, lb=lookback, date=date_str)
+
+
+def _postprocess_html(body_html: str, now_local: datetime, config: dict) -> str:
+    """Transform the plain markdown HTML into the polished report layout:
+    cover block, eyebrow labels, signal cards, and priority-dot threat cells."""
+    # 1) Replace the first H1 with the styled cover block.
+    m = re.search(r"<h1>(.*?)</h1>", body_html, re.DOTALL)
+    if m:
+        cover = _build_cover_html(re.sub(r"<.*?>", "", m.group(1)).strip(), now_local, config)
+        body_html = body_html[: m.start()] + cover + body_html[m.end():]
+
+    # 2) Inject grey eyebrow labels above known H2 sections.
+    def _eyebrow(match: "re.Match") -> str:
+        heading = match.group(1)
+        plain = re.sub(r"<.*?>", "", heading).strip().lower()
+        for needle, label in _SECTION_EYEBROWS:
+            if needle in plain:
+                return f"<div class='eyebrow'>{label}</div><h2>{heading}</h2>"
+        return f"<h2>{heading}</h2>"
+
+    body_html = re.sub(r"<h2>(.*?)</h2>", _eyebrow, body_html, flags=re.DOTALL)
+
+    # 3) Wrap each H3 block (a "signal") and its following content (up to the next
+    #    H3/H2/eyebrow/end) in a card div.
+    body_html = re.sub(
+        r"(<h3>.*?</h3>)(.*?)(?=(<h3>|<h2>|<div class='eyebrow'>|$))",
+        r"<div class='card'>\1\2</div>",
+        body_html,
+        flags=re.DOTALL,
+    )
+
+    # 4) Inside cards, restyle the two bold mini-labels so each starts a labelled line.
+    body_html = body_html.replace(
+        "<strong>What happened —</strong>",
+        "<span class='lbl'>WHAT HAPPENED</span><br/><strong style='font-weight:normal'></strong>",
+    ).replace(
+        "<strong>What it means for Kore.ai —</strong>",
+        "<span class='lbl lbl-blue'>WHAT IT MEANS FOR KORE.AI</span><br/>",
+    )
+
+    # 5) Turn Threat cells (High/Med/Low) into a priority indicator: a coloured
+    #    left accent bar on the cell (reliable in xhtml2pdf, unlike inline-block
+    #    chips) plus a blue-scale bold label. Stays within the blue+black palette.
+    def _dot(match: "re.Match") -> str:
+        val = match.group(1).strip().lower()
+        bar, txt, label = {
+            "high":   (PDF_BLUE,      PDF_BLUE,  "High"),
+            "med":    (PDF_BLUE_SOFT, PDF_BLUE,  "Med"),
+            "medium": (PDF_BLUE_SOFT, PDF_BLUE,  "Med"),
+            "low":    (PDF_GREY_SOFT, PDF_GREY,  "Low"),
+        }.get(val, (None, None, None))
+        if not bar:
+            return match.group(0)
+        return (
+            f"<td class='threat' style='border-left:4pt solid {bar};'>"
+            f"<span style='color:{txt};font-weight:bold;'>{label}</span></td>"
+        )
+
+    body_html = re.sub(r"<td>\s*(High|Med|Medium|Low)\s*</td>", _dot, body_html, flags=re.IGNORECASE)
+    return body_html
+
+
+def render_pdf(markdown_text: str, now_local: datetime, config: dict | None = None) -> bytes | None:
+    """Render the digest to a polished, blue+black, Inter Tight PDF that mirrors the
+    Kore.ai 'Competitive Signal Report' design. Returns None on failure."""
     try:
         import markdown as md
         from xhtml2pdf import pisa
@@ -529,32 +670,72 @@ def render_pdf(markdown_text: str, now_local: datetime) -> bytes | None:
 
     clean = _EMOJI_RE.sub("", markdown_text)
     body_html = md.markdown(clean, extensions=["extra", "sane_lists"])
+    body_html = _postprocess_html(body_html, now_local, config or {})
+
     reg = (FONTS_DIR / "InterTight-Regular.ttf").as_uri()
     bold = (FONTS_DIR / "InterTight-Bold.ttf").as_uri()
-    stamp = now_local.strftime("%d %b %Y %H:%M %Z")
+    year = now_local.strftime("%Y")
+    head_eyebrow = f"COMPETITIVE SIGNAL REPORT · ENTERPRISE AI PLATFORM · {now_local.strftime('%d %b %Y').upper()}"
+
     html = f"""<html><head><meta charset="utf-8"><style>
 @page {{
-  size: A4; margin: 1.7cm 1.5cm 2.1cm 1.5cm;
-  @frame footer_frame {{ -pdf-frame-content: footerContent; bottom: 1cm; margin-left: 1.5cm; margin-right: 1.5cm; height: 1cm; }}
+  size: A4; margin: 2.5cm 1.6cm 1.9cm 1.6cm;
+  @frame header_frame {{ -pdf-frame-content: headerContent; top: 1.0cm; left: 1.6cm; right: 1.6cm; height: 1.2cm; }}
+  @frame footer_frame {{ -pdf-frame-content: footerContent; bottom: 1.0cm; left: 1.6cm; right: 1.6cm; height: 0.8cm; }}
 }}
 @font-face {{ font-family: 'Inter Tight'; src: url('{reg}'); font-weight: normal; }}
 @font-face {{ font-family: 'Inter Tight'; src: url('{bold}'); font-weight: bold; }}
-body {{ font-family: 'Inter Tight'; color: {PDF_BLACK}; font-size: 10pt; line-height: 1.4; }}
-h1 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 19pt; margin-bottom: 2px; }}
-h2 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 13pt; margin-top: 15px; border-bottom: 1px solid #c7d2fe; padding-bottom: 2px; }}
-h3 {{ font-family: 'Inter Tight'; color: {PDF_BLUE}; font-size: 11.5pt; }}
+body {{ font-family: 'Inter Tight'; color: {PDF_INK}; font-size: 9.8pt; line-height: 1.45; }}
+
+/* Running header */
+#headerContent {{ width: 100%; }}
+.hdr {{ width: 100%; border-bottom: 0.75pt solid {PDF_RULE}; padding-bottom: 3px; }}
+.hdr td {{ border: none; padding: 0; }}
+.hdr-eyebrow {{ color: {PDF_GREY}; font-size: 6.8pt; letter-spacing: 1.2px; }}
+
+/* Footer */
+#footerContent {{ color: {PDF_GREY}; font-size: 6.8pt; letter-spacing: 0.8px; text-align: right; }}
+
+/* Cover block */
+.cover {{ margin-bottom: 4px; }}
+.eyebrow {{ color: {PDF_GREY}; font-size: 7pt; letter-spacing: 1.6px; font-weight: bold; margin-top: 14px; margin-bottom: 2px; }}
+.cover-title {{ color: {PDF_BLACK}; font-size: 23pt; font-weight: bold; line-height: 1.1; margin: 1px 0 5px 0; }}
+.cover-meta {{ color: {PDF_GREY}; font-size: 8.2pt; margin: 0; }}
+
+/* Headings */
+h2 {{ color: {PDF_BLACK}; font-size: 13pt; font-weight: bold; margin: 2px 0 6px 0; }}
+h3 {{ color: {PDF_BLACK}; font-size: 10.5pt; font-weight: bold; margin: 0 0 4px 0; }}
 a {{ color: {PDF_BLUE}; text-decoration: none; }}
 strong, b {{ color: {PDF_BLACK}; font-weight: bold; }}
+p {{ margin: 4px 0; }}
 li {{ margin-bottom: 3px; }}
-hr {{ border: none; border-top: 0.5px solid #c7d2fe; }}
-blockquote {{ background: #f1f5f9; border-left: 3px solid {PDF_BLUE}; margin: 8px 0; padding: 7px 10px; }}
+hr {{ border: none; border-top: 0.5pt solid {PDF_RULE}; margin: 10px 0; }}
+
+/* Bottom-line / caveat callout */
+blockquote {{ background: {PDF_CALLOUT_BG}; border-left: 3pt solid {PDF_BLUE}; margin: 8px 0 4px 0; padding: 8px 11px; color: {PDF_BLACK}; }}
 blockquote strong {{ color: {PDF_BLUE}; }}
-table {{ border-collapse: collapse; width: 100%; font-size: 8.7pt; margin: 6px 0; }}
-th {{ background: #f1f5f9; color: {PDF_BLUE}; text-align: left; padding: 5px 6px; border-bottom: 1.5px solid #c7d2fe; }}
-td {{ padding: 5px 6px; border-bottom: 0.5px solid #c7d2fe; vertical-align: top; }}
-#footerContent {{ color: {PDF_BLUE}; font-size: 7.5pt; }}
+blockquote p {{ margin: 0; }}
+
+/* Signal cards */
+.card {{ background: {PDF_CARD_BG}; border: 0.75pt solid {PDF_RULE}; border-left: 3pt solid {PDF_BLUE}; padding: 8px 11px; margin: 7px 0; }}
+.card h3 {{ color: {PDF_BLUE}; }}
+.card p {{ margin: 3px 0; }}
+.lbl {{ color: {PDF_GREY}; font-size: 6.6pt; letter-spacing: 1.2px; font-weight: bold; }}
+.lbl-blue {{ color: {PDF_BLUE}; }}
+
+/* Tables */
+table {{ border-collapse: collapse; width: 100%; font-size: 8.4pt; margin: 6px 0; }}
+th {{ background: {PDF_BLUE}; color: #ffffff; text-align: left; padding: 5px 7px; font-weight: bold; font-size: 7.8pt; letter-spacing: 0.4px; }}
+td {{ padding: 5px 7px; border-bottom: 0.5pt solid {PDF_RULE}; vertical-align: top; color: {PDF_INK}; }}
+td.threat {{ white-space: nowrap; font-weight: bold; color: {PDF_BLACK}; }}
 </style></head><body>
-<div id="footerContent">Confidential — Kore.ai Competitive Intelligence · Generated {stamp} · Page <pdf:pagenumber>/<pdf:pagecount></div>
+<div id="headerContent">
+  <table class="hdr"><tr>
+    <td class="hdr-eyebrow" align="left">{head_eyebrow}</td>
+    <td align="right">{_wordmark_html()}</td>
+  </tr></table>
+</div>
+<div id="footerContent">© {year} KORE.AI · CONFIDENTIAL · ALL RIGHTS RESERVED · PAGE <pdf:pagenumber> / <pdf:pagecount></div>
 {body_html}</body></html>"""
 
     buf = io.BytesIO()
@@ -598,14 +779,20 @@ def send_email(
     )
     html = f"""<!DOCTYPE html><html><head><meta charset="utf-8">
 <style>
-  body {{ font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-         line-height: 1.55; color: #1a1a1a; max-width: 720px; margin: 0 auto; padding: 16px; }}
-  h1 {{ font-size: 24px; border-bottom: 2px solid #eaeaea; padding-bottom: 8px; }}
-  h2 {{ font-size: 19px; margin-top: 28px; }}
-  h3 {{ font-size: 16px; margin-top: 20px; }}
-  a {{ color: #2563eb; }}
-  hr {{ border: none; border-top: 1px solid #eaeaea; margin: 24px 0; }}
+  body {{ font-family: 'Inter Tight', -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+         line-height: 1.55; color: #1f2430; max-width: 720px; margin: 0 auto; padding: 20px 18px; }}
+  h1 {{ font-size: 25px; color: #0b0f19; border-bottom: 2px solid #dbe3f4; padding-bottom: 10px; margin-bottom: 14px; }}
+  h2 {{ font-size: 18px; color: #0b0f19; margin-top: 28px; margin-bottom: 6px; }}
+  h3 {{ font-size: 15px; color: #1d4ed8; margin-top: 18px; margin-bottom: 4px; }}
+  a {{ color: #1d4ed8; text-decoration: none; }}
+  hr {{ border: none; border-top: 1px solid #dbe3f4; margin: 24px 0; }}
   code {{ background: #f4f4f4; padding: 1px 4px; border-radius: 4px; }}
+  blockquote {{ background: #eef3fd; border-left: 4px solid #1d4ed8; margin: 14px 0;
+                padding: 12px 16px; border-radius: 4px; }}
+  blockquote strong {{ color: #1d4ed8; }}
+  table {{ border-collapse: collapse; width: 100%; font-size: 13px; margin: 12px 0; }}
+  th {{ background: #1d4ed8; color: #ffffff; text-align: left; padding: 8px 10px; font-size: 12px; }}
+  td {{ padding: 8px 10px; border-bottom: 1px solid #dbe3f4; vertical-align: top; }}
 </style></head><body>{html_body}</body></html>"""
 
     email_cfg = config.get("email", {})
@@ -751,7 +938,7 @@ def run_daily(config: dict, now_local: datetime, knowledge_base: str, dry_run: b
 
     # Render the PDF (Inter Tight, blue+black), archive it, and attach to the email.
     attachments = None
-    pdf_bytes = render_pdf(digest, now_local)
+    pdf_bytes = render_pdf(digest, now_local, config)
     if pdf_bytes:
         save_pdf(pdf_bytes, now_local)
         attachments = [{

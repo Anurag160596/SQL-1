@@ -300,66 +300,35 @@ These are the weaknesses to look for. Any new evidence of one is an opening:
 {lever_lines}
 
 ## Output format (Markdown only — no preamble, no "here is your digest")
-Every news item, in every section, MUST begin with its publication date as \
-**(YYYY-MM-DD)** and carry a working source link. Items without a verifiable \
-in-window date do not belong in the digest. Start directly with an H1 title line. \
-Structure:
+Keep the WHOLE digest concise. Every item MUST begin with its publication date as \
+**(YYYY-MM-DD)** and a working source link; drop anything without a verifiable \
+in-window date. Do NOT repeat an item across sections. Start directly with the H1.
 
 # Agentic AI Daily Digest — {today}
 
-**TL;DR** — 3-5 bullet points capturing the single most important things today, \
-leading with the sharpest undercut opportunity.
+**TL;DR** — up to 3 crisp bullets: the most important moves today.
 
-## ⚔️ Undercut Opportunities (the hero section — lead with this)
-For each genuinely new competitor development that creates an opening, write an entry. \
-Only include real openings backed by a source — never manufacture one. If nothing is \
-actionable today, say so in one line. Format each entry as:
+## ⚔️ Moves & Kore.ai's Counter
+The core section. One entry per genuinely new, material competitor development \
+(group by competitor). Be tight — exactly three one-line points per entry, no \
+padding, no extra prose. If nothing is material today, say so in one line.
 
-- **[Competitor] — <one-line event>** — [Source](url)
-  - **Lever:** which weakness this exposes (Pricing/TCO · Proof/validation gap · \
-Channel/coverage gap · Reliability/governance · or other — name it)
-  - **Angle:** the attack narrative — how to frame this against the competitor
-  - **Kore.ai counter:** the specific proof point/capability to deploy (ABL determinism, \
-true omnichannel, multi-model routing, 6x analyst Leader status, etc. — cite the KB)
-  - **Plays:** concrete, team-tagged actions —
-    🟦 **Sales** (battlecard line or trap discovery question) ·
-    🟩 **PMM** (campaign/content/comparison angle) ·
-    🟪 **AR** (what to feed Gartner/Forrester/Everest/IDC) ·
-    🟧 **Product** (gap to close to neutralize them)
-
-## 🏆 Top Stories
-The 2-4 biggest developments. For EACH: a bold headline, 2-4 sentences of \
-substance, an explicit **Why it matters** line, and a Markdown source link \
-[Source](url). Connect related items where relevant.
-
-## 🎯 Competitor Watch
-One subsection per watchlist company that has real news. Bold the company name, \
-summarize what happened, give **Why it matters** (especially vs. Kore.ai's \
-enterprise CX / agentic platform positioning), and link the source. \
-If a company has nothing new, omit it (don't invent news).
-
-## 🏗️ Platform & Big-Tech Moves
-Enterprise agentic-platform and CCAI moves from the big players (Salesforce \
-Agentforce, ServiceNow, Microsoft, Google CCAI, AWS, IBM) and notable \
-foundation-model releases relevant to CX agents. Bullets with links.
-
-## 📊 Analysts & Rankings
-New analyst reports, Magic Quadrant / Wave / Everest / IDC placements, awards, \
-and benchmark or ranking news. For each: one-line takeaway + link. \
-Omit if nothing new.
-
-## 💰 Funding, M&A & Industry
-Funding rounds, acquisitions, earnings, launches, enterprise adoption, and \
-partnerships across CX / customer-service / agentic AI. Bullets with links.
+- **[Competitor] — <event>** (YYYY-MM-DD) — [Source](url)
+  - **What it means:** the significance in one concise line.
+  - **Value for their stakeholders:** the value this move creates for the \
+competitor's stakeholders (enterprise CX buyers, customers, users) — one line.
+  - **How Kore.ai creates more value:** how Kore.ai counters and delivers GREATER \
+value to those stakeholders — one line, grounded in a real proof point (ABL \
+determinism, true omnichannel, multi-model routing, 6x analyst Leader status, etc.).
 
 ## ⚡ Quick Hits
-A handful of smaller-but-worth-knowing items as one-liners with links.
+Everything else worth knowing as one-liners: **(YYYY-MM-DD) item — [Source](url)**. \
+No analysis. Omit if there's nothing.
 
 ## Rules
-- Every factual claim must have a real, working source link. Never fabricate URLs.
-- Be specific (numbers, names, dates). Skip hype and marketing fluff.
-- Write for a technical reader who builds agents. Analytical, not breathless.
-- It is fine for the digest to be long; depth is the goal."""
+- Every claim needs a real, working source link tied to an in-window item. Never fabricate.
+- Concise above all: short lines, specific (names/numbers/dates), no hype, no repetition.
+- "Stakeholders" = the enterprise CX buyers/customers/users both sides are competing to serve."""
 
 
 def generate_digest(config: dict, prompt: str, use_search: bool = True):

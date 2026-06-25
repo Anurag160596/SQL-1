@@ -2,8 +2,13 @@ name: Agentic AI Daily Digest
 
 on:
   schedule:
-    # Every 12 hours: 02:30 & 14:30 UTC == 08:00 & 20:00 IST. Cron is always UTC.
-    - cron: "30 2,14 * * *"
+    # Fire OFTEN inside the two delivery windows so a flaky/late GitHub run still
+    # lands one trigger in-window. The send-once-per-slot guard in digest_agent.py
+    # ensures only the first in-window trigger per slot actually emails — every
+    # later fire that day exits immediately (no model call, no email).
+    #   08:00 IST window = 02:30–06:30 UTC  -> fire every 15 min, 02–06 UTC
+    #   20:00 IST window = 14:30–18:30 UTC  -> fire every 15 min, 14–18 UTC
+    - cron: "*/15 2-6,14-18 * * *"
   workflow_dispatch:
     # Manual trigger from the Actions tab.
     inputs:
@@ -25,6 +30,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Always check out the live branch tip so a queued run sees the slot
+          # state just committed by the run ahead of it (prevents double-send).
+          ref: main
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -41,17 +50,20 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           OPEN_ROUTER_API_KEY: ${{ secrets.OPEN_ROUTER_API_KEY }}
           DIGEST_DRY_RUN: ${{ github.event.inputs.dry_run }}
+          # Marks scheduled runs so the send-once-per-slot guard applies. Manual
+          # workflow_dispatch leaves this empty and always sends on demand.
+          DIGEST_SCHEDULED: ${{ github.event_name == 'schedule' && '1' || '' }}
         run: python digest_agent.py
 
       - name: Commit the digest
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add digests/
+          git add digests/ schedule_state.json
           if git diff --staged --quiet; then
             echo "No new digest to commit."
           else
             git commit -m "digest: $(date -u +%Y-%m-%dT%H%MZ)"
-            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
-            git push
+            git pull --rebase --autostash origin main || true
+            git push origin HEAD:main
           fi

@@ -14,6 +14,20 @@ recipients:
 # this is the 08:00 IST / 02:30 UTC digest tomorrow, which sends normally.
 pause_until: "2026-06-24T02:00:00Z"
 
+# Send-once-per-slot schedule guard (applies to scheduled/cron runs only; a manual
+# workflow_dispatch always sends). The workflow is fired often around these local
+# times; the FIRST trigger at/after each slot sends the digest, and every later
+# trigger that day is skipped — so you get exactly ONE email per slot, even if both
+# GitHub cron and an external cron (cron-job.org) fire. Times are in `timezone`.
+schedule:
+  enabled: true
+  slots_local:
+    - "08:00"   # 8 AM IST
+    - "20:00"   # 8 PM IST
+  # A slot stays eligible this many minutes after its time, so a late trigger
+  # (GitHub cron can run hours behind) still delivers that slot's single email.
+  window_minutes: 240
+
 email:
   # Without a verified domain, Resend only sends from onboarding@resend.dev
   # (and only to the address you signed up to Resend with).

@@ -46,6 +46,7 @@ CONFIG_PATH = ROOT / "config.yaml"
 DIGESTS_DIR = ROOT / "digests"
 ALERT_STATE_PATH = ROOT / "alerts_state.json"
 ALERT_STATE_RETENTION_DAYS = 7
+SCHEDULE_STATE_PATH = ROOT / "schedule_state.json"
 KB_DIR = ROOT / "knowledge_base"
 KB_CHAR_BUDGET = 48000  # cap KB text injected into the prompt
 FONTS_DIR = ROOT / "assets" / "fonts"
@@ -1412,6 +1413,45 @@ def _is_paused(config: dict) -> bool:
     return False
 
 
+def _load_schedule_state() -> dict:
+    if not SCHEDULE_STATE_PATH.exists():
+        return {}
+    try:
+        return json.loads(SCHEDULE_STATE_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _due_slot(config: dict, now_local: datetime) -> "str | None":
+    """Return the schedule slot (e.g. "08:00") that is currently DUE and not yet
+    sent today, or None. A slot is due from its local time until window_minutes
+    later — so a late/extra trigger in that window still sends, and the per-slot
+    state guarantees it sends only ONCE per day no matter how often it's triggered."""
+    sched = config.get("schedule", {})
+    slots = sched.get("slots_local", ["08:00", "20:00"])
+    window = int(sched.get("window_minutes", 240))
+    state = _load_schedule_state()
+    today = now_local.strftime("%Y-%m-%d")
+    for slot in slots:
+        try:
+            hh, mm = map(int, str(slot).split(":"))
+        except Exception:
+            continue
+        slot_dt = now_local.replace(hour=hh, minute=mm, second=0, microsecond=0)
+        if slot_dt <= now_local < slot_dt + timedelta(minutes=window) and state.get(slot) != today:
+            return slot
+    return None
+
+
+def _record_slot_sent(slot: str, now_local: datetime) -> None:
+    state = _load_schedule_state()
+    state[slot] = now_local.strftime("%Y-%m-%d")
+    SCHEDULE_STATE_PATH.write_text(
+        json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    print(f"Recorded slot {slot} sent for {state[slot]}.")
+
+
 def main() -> None:
     config = load_config()
 
@@ -1433,8 +1473,27 @@ def main() -> None:
 
     if mode == "alerts":
         run_alerts(config, now_local, knowledge_base, dry_run)
-    else:
-        run_daily(config, now_local, knowledge_base, dry_run)
+        return
+
+    # Send-once-per-slot guard. Applies only to scheduled (timer/cron) runs, so a
+    # manual workflow_dispatch still sends on demand. Lets us fire the workflow
+    # often around 08:00/20:00 IST (better odds against GitHub's flaky cron) and
+    # tolerate an extra external trigger (e.g. cron-job.org) — you still get
+    # exactly ONE email per slot per day.
+    scheduled = os.environ.get("DIGEST_SCHEDULED", "").lower() in {"1", "true", "yes"}
+    gated = scheduled and config.get("schedule", {}).get("enabled", True)
+    slot = None
+    if gated:
+        slot = _due_slot(config, now_local)
+        if slot is None:
+            print("No digest slot due right now (or already sent today) — skipping.")
+            return
+        print(f"Slot {slot} is due and unsent today — generating digest.")
+
+    run_daily(config, now_local, knowledge_base, dry_run)
+
+    if slot and not dry_run:
+        _record_slot_sent(slot, now_local)
 
 
 if __name__ == "__main__":

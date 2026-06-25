@@ -1,10 +1,11 @@
 name: Undercut Rapid Alerts
 
 on:
-  schedule:
-    # Every 4 hours. Short-window sweep; emails ONLY when a high-value
-    # competitor trigger is genuinely breaking (else it sends nothing).
-    - cron: "0 */4 * * *"
+  # Auto-schedule DISABLED — the user wants a single daily-digest email only
+  # (08:00 & 20:00 IST). Rapid alerts would add extra emails, so they no longer
+  # run on a timer. Left as manual-only; re-enable by uncommenting the schedule.
+  # schedule:
+  #   - cron: "0 */4 * * *"   # every 4 hours
   workflow_dispatch:
     inputs:
       dry_run:

@@ -1,0 +1,12 @@
+{
+  "name": "everything-claude-code-kit",
+  "owner": "Anurag160596",
+  "description": "Marketplace catalog for the everything-claude-code-kit plugin. Add with: /plugin marketplace add",
+  "plugins": [
+    {
+      "name": "everything-claude-code-kit",
+      "source": "./",
+      "description": "Specialized agents, skills, rules, and hooks for productive AI-assisted development."
+    }
+  ]
+}

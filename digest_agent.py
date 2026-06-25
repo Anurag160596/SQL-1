@@ -435,6 +435,18 @@ def bind_links(digest_md: str, verified_items: list[dict]) -> str:
     return out
 
 
+def _unwrap_code_spans(text: str) -> str:
+    """Remove inline-code backticks the model sometimes wraps around source links.
+    A link inside backticks renders as a code span — the FULL raw URL shows as
+    non-clickable monospace text. Unwrapping restores a normal clickable
+    [Publication](url) link (only the publication name visible). The digest never
+    contains real code, so stripping inline backticks is safe."""
+    # Drop ```fences``` markers, then unwrap `inline code` to its contents.
+    text = re.sub(r"```+", "", text)
+    text = re.sub(r"`([^`\n]+)`", r"\1", text)
+    return text.replace("`", "")
+
+
 def ground_digest(config: dict, digest_md: str, verified_items: list[dict]) -> str:
     """Output-grounding governance: rewrite the finished digest so every dated
     'What happened' claim and every priority-table row is supported by one of the
@@ -462,10 +474,13 @@ item reports.
 - If deleting leaves a company with nothing, remove that company entirely.
 - Keep all SUPPORTED content VERBATIM. Do NOT add new facts, companies, or dates.
 - PRESERVE MARKDOWN LINKS (critical): every kept "What happened" sentence, every kept \
-priority-table "Move (dated)" cell, and every kept Sources line MUST end with a \
-`[Publication](url)` Markdown link, where the url is taken from the matching verified \
-item in (A). NEVER output a source as plain text (e.g. write `[CX Today](https://...)`, \
-never just `CX Today`). NEVER invent a URL — only use URLs that appear in (A).
+priority-table "Move (dated)" cell, and every kept Sources line MUST end with a Markdown \
+link written EXACTLY as [Publication](url) — square brackets then parentheses, with NO \
+backticks and NO code formatting around it — where the url is taken from the matching \
+verified item in (A). NEVER wrap a link in backticks, NEVER show the raw URL as visible \
+text, and NEVER output a source as plain text. Example: write [CX Today](https://example) \
+so only the words "CX Today" are visible and clickable. NEVER invent a URL — only use \
+URLs that appear in (A).
 - Keep the exact same section structure and headings (H1, bottom-line blockquote, \
 "## Three signals that matter" with `###` H3 cards, "## Signal priority table", \
 "## Watch for", "## Recommended actions", "## Sources").
@@ -645,7 +660,8 @@ two bold labels MUST appear verbatim, each starting its own line):
 
 ### {{Short insight headline for signal 1}}
 **What happened —** (YYYY-MM-DD) one or two concrete sentences with names/numbers, \
-ending in a `[Publication](url)` link.
+ending in a Markdown link written as [Publication](url) (no backticks; only the \
+publication name is visible and clickable, never the raw URL).
 **What it means for Kore.ai —** one or two sentences: the threat/opening AND the \
 specific Kore.ai counter or positioning move (grounded in a real proof point).
 
@@ -668,7 +684,8 @@ first. Use exactly these columns:
 |---|---|---|---|
 | Five9 | (2026-06-23) Launched Voice AI Agents — [Business Wire](url) | High | Determinism + cost-per-outcome vs. seat model |
 
-- **Move (dated)** starts with **(YYYY-MM-DD)** and ends with a `[Publication](url)` link.
+- **Move (dated)** starts with **(YYYY-MM-DD)** and ends with a Markdown link written as \
+[Publication](url) — no backticks, only the publication name visible/clickable.
 - **Threat** = exactly one of `High` / `Med` / `Low` (Kore.ai's exposure).
 - **Kore.ai counter** = one short clause, grounded in a real proof point.
 - Only in-window, sourced rows. If nothing material this run, write one line saying so.
@@ -1241,6 +1258,10 @@ def run_daily(config: dict, now_local: datetime, knowledge_base: str, dry_run: b
         print("No RSS news fetched; falling back to model web search.")
         prompt = build_prompt(config, now_local, knowledge_base)
         digest, grounded = generate_digest(config, prompt, use_search=True)
+
+    # Unwrap any code-span backticks the model put around source links, so links
+    # render clickable (publication name only) instead of dumping the raw URL.
+    digest = _unwrap_code_spans(digest)
 
     if grounded == 0:
         print("WARNING: no grounding sources — this run did not perform live search.")

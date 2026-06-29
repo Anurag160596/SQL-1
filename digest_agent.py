@@ -1445,23 +1445,34 @@ def _load_schedule_state() -> dict:
 
 def _due_slot(config: dict, now_local: datetime) -> "str | None":
     """Return the schedule slot (e.g. "08:00") that is currently DUE and not yet
-    sent today, or None. A slot is due from its local time until window_minutes
-    later — so a late/extra trigger in that window still sends, and the per-slot
-    state guarantees it sends only ONCE per day no matter how often it's triggered."""
+    sent today, or None.
+
+    A slot is due from its local time until the NEXT slot's time (i.e. the most
+    recent slot whose time has passed today). This tolerates GitHub's chronically
+    late/erratic cron: as long as ANY trigger fires between the slot time and the
+    next slot, that slot still sends — once — guaranteed by the per-slot date state.
+    (The morning slot is thus eligible 08:00–20:00, the evening slot 20:00–midnight.)
+    It won't deliver the exact minute — only cron-job.org can — but it stops misses."""
     sched = config.get("schedule", {})
     slots = sched.get("slots_local", ["08:00", "20:00"])
-    window = int(sched.get("window_minutes", 240))
     state = _load_schedule_state()
     today = now_local.strftime("%Y-%m-%d")
+    parsed: list[tuple[str, datetime]] = []
     for slot in slots:
         try:
             hh, mm = map(int, str(slot).split(":"))
         except Exception:
             continue
-        slot_dt = now_local.replace(hour=hh, minute=mm, second=0, microsecond=0)
-        if slot_dt <= now_local < slot_dt + timedelta(minutes=window) and state.get(slot) != today:
-            return slot
-    return None
+        parsed.append((slot, now_local.replace(hour=hh, minute=mm, second=0, microsecond=0)))
+    parsed.sort(key=lambda x: x[1])
+    # The due slot is the latest one whose time has already passed today.
+    due = None
+    for slot, slot_dt in parsed:
+        if slot_dt <= now_local:
+            due = slot
+    if due is None or state.get(due) == today:
+        return None
+    return due
 
 
 def _record_slot_sent(slot: str, now_local: datetime) -> None:

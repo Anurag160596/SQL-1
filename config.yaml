@@ -22,11 +22,11 @@ pause_until: "2026-06-24T02:00:00Z"
 schedule:
   enabled: true
   slots_local:
-    - "08:00"   # 8 AM IST
-    - "20:00"   # 8 PM IST
-  # A slot stays eligible this many minutes after its time, so a late trigger
-  # (GitHub cron can run hours behind) still delivers that slot's single email.
-  window_minutes: 240
+    - "08:00"   # 8 AM IST  (eligible 08:00–20:00 IST)
+    - "20:00"   # 8 PM IST  (eligible 20:00–midnight IST)
+  # Each slot stays eligible until the NEXT slot's time, so even a badly delayed
+  # GitHub run (its cron routinely fires hours late) still delivers that slot's
+  # single email instead of being skipped. Exact-minute delivery needs cron-job.org.
 
 email:
   # Without a verified domain, Resend only sends from onboarding@resend.dev

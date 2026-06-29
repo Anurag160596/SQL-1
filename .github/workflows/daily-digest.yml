@@ -2,13 +2,13 @@ name: Agentic AI Daily Digest
 
 on:
   schedule:
-    # Fire OFTEN inside the two delivery windows so a flaky/late GitHub run still
-    # lands one trigger in-window. The send-once-per-slot guard in digest_agent.py
-    # ensures only the first in-window trigger per slot actually emails — every
-    # later fire that day exits immediately (no model call, no email).
-    #   08:00 IST window = 02:30–06:30 UTC  -> fire every 15 min, 02–06 UTC
-    #   20:00 IST window = 14:30–18:30 UTC  -> fire every 15 min, 14–18 UTC
-    - cron: "*/15 2-6,14-18 * * *"
+    # Fire every 30 min across the whole active span (02:00–18:30 UTC ==
+    # 07:30 IST–00:00 IST) so even a badly delayed GitHub run still lands a
+    # trigger while a slot is eligible. The send-once-per-slot guard makes only
+    # the first eligible trigger per slot actually email; every other fire exits
+    # immediately (no model call, no email). GitHub's cron is chronically late,
+    # so wide coverage + the until-next-slot eligibility = no more misses.
+    - cron: "*/30 2-18 * * *"
   workflow_dispatch:
     # Manual trigger from the Actions tab.
     inputs:

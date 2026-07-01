@@ -5,8 +5,13 @@
 # ============================================================
 
 # Who receives the digest. Add more addresses to fan it out.
+# NOTE: delivery to addresses other than your Resend signup email requires a
+# VERIFIED sending domain (see email.from). With an unverified domain Resend
+# 403s the whole send.
 recipients:
   - anuragblr19@gmail.com
+  - Anurag.kumar@kore.com
+  - Akhil.Ganji@kore.com
 
 # One-off pause: while this UTC timestamp is in the future, ALL runs (digest +
 # alerts) skip entirely — no email. Self-clears once the time passes. Set to ""
@@ -29,9 +34,9 @@ schedule:
   # single email instead of being skipped. Exact-minute delivery needs cron-job.org.
 
 email:
-  # Without a verified domain, Resend only sends from onboarding@resend.dev
-  # (and only to the address you signed up to Resend with).
-  from: "Agentic AI Digest <onboarding@resend.dev>"
+  # Sends from the verified Resend domain (news.kore.com). Adjust to match the
+  # exact subdomain/address you verify in Resend before merging.
+  from: "Agentic AI Digest <digest@news.kore.com>"
   subject_prefix: "🤖 Agentic AI Daily —"
 
 model:

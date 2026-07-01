@@ -5,8 +5,13 @@
 # ============================================================
 
 # Who receives the digest. Add more addresses to fan it out.
+# NOTE: Resend only delivers to non-signup addresses once a SENDING DOMAIN is
+# verified in Resend and `email.from` uses that domain. Until then, addresses
+# other than the Resend signup address (anuragblr19@gmail.com) are rejected —
+# the per-recipient sender skips just those (logged) without blocking the rest.
 recipients:
   - anuragblr19@gmail.com
+  - anurag.kumar@kore.com   # delivers once a Resend sending domain is verified
 
 # One-off pause: while this UTC timestamp is in the future, ALL runs (digest +
 # alerts) skip entirely — no email. Self-clears once the time passes. Set to ""

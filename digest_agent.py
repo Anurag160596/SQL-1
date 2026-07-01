@@ -1132,27 +1132,39 @@ def send_email(
     if not recipients:
         fail("No recipients configured in config.yaml.")
 
-    payload = {
-        "from": sender,
-        "to": recipients,
-        "subject": subject,
-        "html": html,
-    }
+    base_payload = {"from": sender, "subject": subject, "html": html}
     if attachments:
-        payload["attachments"] = attachments
+        base_payload["attachments"] = attachments
 
-    resp = requests.post(
-        "https://api.resend.com/emails",
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        json=payload,
-        timeout=60,
-    )
-    if resp.status_code >= 300:
-        fail(f"Resend API error {resp.status_code}: {resp.text}")
-    print(f"Email sent to {', '.join(recipients)} (Resend id: {resp.json().get('id')})")
+    # Send to each recipient independently so one undeliverable address (e.g. a
+    # corporate address that Resend rejects until a sending domain is verified)
+    # can't block delivery to everyone else. The run succeeds if ANY send lands.
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    sent, failed = [], []
+    for addr in recipients:
+        try:
+            resp = requests.post(
+                "https://api.resend.com/emails",
+                headers=headers,
+                json={**base_payload, "to": [addr]},
+                timeout=60,
+            )
+        except Exception as exc:
+            failed.append((addr, f"request error: {str(exc)[:120]}"))
+            continue
+        if resp.status_code >= 300:
+            failed.append((addr, f"{resp.status_code}: {resp.text[:160]}"))
+        else:
+            sent.append(addr)
+
+    if sent:
+        print(f"Email sent to {', '.join(sent)}.")
+    for addr, why in failed:
+        print(f"  WARNING: could not send to {addr} -> {why}")
+    if failed and not sent:
+        # Nothing got through — surface as an error so the run is visibly red.
+        detail = "; ".join(f"{a}: {w}" for a, w in failed)
+        fail(f"Resend delivery failed for all recipients: {detail}")
 
 
 NO_ALERTS_SENTINEL = "NO_ALERTS"

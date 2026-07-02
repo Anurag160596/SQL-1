@@ -49,6 +49,10 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           OPEN_ROUTER_API_KEY: ${{ secrets.OPEN_ROUTER_API_KEY }}
+          # If these two are set, the agent sends via your own Gmail (free, reaches
+          # any recipient incl. @kore.com). If unset, it falls back to Resend.
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           DIGEST_DRY_RUN: ${{ github.event.inputs.dry_run }}
           # Marks scheduled runs so the send-once-per-slot guard applies. Manual
           # workflow_dispatch leaves this empty and always sends on demand.

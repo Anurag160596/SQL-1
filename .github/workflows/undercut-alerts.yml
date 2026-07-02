@@ -41,6 +41,8 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           OPEN_ROUTER_API_KEY: ${{ secrets.OPEN_ROUTER_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           DIGEST_MODE: alerts
           DIGEST_DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: python digest_agent.py

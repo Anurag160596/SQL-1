@@ -28,13 +28,17 @@ import json
 import math
 import os
 import re
+import smtplib
 import sys
 import time
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
-from email.utils import parsedate_to_datetime
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import formataddr, parsedate_to_datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -1132,6 +1136,16 @@ def send_email(
     if not recipients:
         fail("No recipients configured in config.yaml.")
 
+    # Provider selection: if a Gmail App Password is configured, send THROUGH the
+    # user's own Gmail (free, delivers to ANY recipient incl. @kore.com). Otherwise
+    # use Resend (whose free shared sender only reaches the signup address).
+    gmail_user = os.environ.get("GMAIL_ADDRESS", "").strip()
+    gmail_pass = os.environ.get("GMAIL_APP_PASSWORD", "").strip()
+    if gmail_user and gmail_pass:
+        from_name = email_cfg.get("from_name", "Agentic AI Digest")
+        _send_via_gmail(gmail_user, gmail_pass, from_name, recipients, subject, html, attachments)
+        return
+
     base_payload = {"from": sender, "subject": subject, "html": html}
     if attachments:
         base_payload["attachments"] = attachments
@@ -1165,6 +1179,62 @@ def send_email(
         # Nothing got through — surface as an error so the run is visibly red.
         detail = "; ".join(f"{a}: {w}" for a, w in failed)
         fail(f"Resend delivery failed for all recipients: {detail}")
+
+
+def _send_via_gmail(
+    gmail_user: str,
+    app_password: str,
+    from_name: str,
+    recipients: list[str],
+    subject: str,
+    html: str,
+    attachments: "list[dict] | None",
+) -> None:
+    """Send the digest through the user's own Gmail via SMTP (free; reaches ANY
+    recipient). Auth uses a Google App Password (16 chars) stored as the
+    GMAIL_APP_PASSWORD secret — never a real account password. Per-recipient so
+    one bad address can't block the rest; the run only errors if ALL fail."""
+    try:
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=60)
+        server.login(gmail_user, app_password)
+    except Exception as exc:
+        fail(f"Gmail SMTP login failed ({str(exc)[:140]}). Check GMAIL_ADDRESS and "
+             f"GMAIL_APP_PASSWORD (a 16-char Google App Password, 2FA enabled).")
+
+    from_header = formataddr((from_name, gmail_user))
+    sent, failed = [], []
+    for addr in recipients:
+        try:
+            msg = MIMEMultipart()
+            msg["From"] = from_header
+            msg["To"] = addr
+            msg["Subject"] = subject
+            msg.attach(MIMEText(html, "html", "utf-8"))
+            for att in attachments or []:
+                try:
+                    data = base64.b64decode(att.get("content", ""))
+                except Exception:
+                    continue
+                part = MIMEApplication(data, _subtype="pdf")
+                part.add_header("Content-Disposition", "attachment",
+                                filename=att.get("filename", "digest.pdf"))
+                msg.attach(part)
+            server.sendmail(gmail_user, [addr], msg.as_string())
+            sent.append(addr)
+        except Exception as exc:
+            failed.append((addr, str(exc)[:140]))
+    try:
+        server.quit()
+    except Exception:
+        pass
+
+    if sent:
+        print(f"Email sent via Gmail ({gmail_user}) to {', '.join(sent)}.")
+    for addr, why in failed:
+        print(f"  WARNING: Gmail could not send to {addr} -> {why}")
+    if failed and not sent:
+        detail = "; ".join(f"{a}: {w}" for a, w in failed)
+        fail(f"Gmail delivery failed for all recipients: {detail}")
 
 
 NO_ALERTS_SENTINEL = "NO_ALERTS"

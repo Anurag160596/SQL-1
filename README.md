@@ -1,4 +1,17 @@
-# SQL-1
+# The Undercut Engine — an autonomous competitive-intelligence agent
+
+> **For reviewers & recruiters:** this repo is a working AI **product**, not a script.
+> It reads the enterprise-CX / agentic-AI market twice a day and turns each competitor
+> move into an *attack angle + counter + a team-tagged play* — with an accuracy layer
+> that would rather stay silent than be wrong.
+>
+> - 📄 **6-minute product case study** (problem → decisions → outcomes): [`portfolio/case-study-undercut-engine.md`](portfolio/case-study-undercut-engine.md)
+> - 🛰️ **Portfolio site:** [`portfolio/index.html`](portfolio/index.html)
+> - **What it demonstrates:** product judgment (precision-over-recall, decisions-not-headlines),
+>   competitive strategy (13-rival market map, positioning wedges), and growth thinking
+>   (distribution by design, near-zero marginal cost). The technical docs continue below.
+
+---
 
 ## 🤖 Agentic AI Daily Digest
 

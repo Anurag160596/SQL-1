@@ -82,7 +82,7 @@ runs the operation behind it, at the capacity and in the jurisdiction the busine
 |---|---|---|
 | **01** | **Leader in the CX category, twice over.** Named a Leader in the Gartner MQ for Conversational AI Platforms 2026, alongside Google, Salesforce and SoundHound AI, and a Leader in the Forrester Wave for customer service. The only vendor leading both. `GARTNER` `FORRESTER` | **Not evaluated in the CX category.** Does not appear in the Gartner MQ for Conversational AI Platforms 2026 or the Forrester Wave for customer service. Its Gartner Peer Insights presence sits in text-to-speech and AI dubbing. This is a category-position gap, not a company-quality gap. `GARTNER` `FORRESTER` |
 | **02** | **Capacity and cost sized in the contract.** One stack across voice and digital, with per-agent, per-intent and per-tool cost attribution, and model tiering that routes the simple 80% to fast models. `EVEREST` | **Capacity is the constraint, and exceeding it costs double.** The top self-serve tier, Business at $990 a month, carries 12,375 minutes and 40 concurrent calls. Burst allows up to 3x that concurrency with the excess "charged at double the standard rate," so a volume spike is also a price spike. Enterprise concurrency is elevated but unpublished. Unused paid credits expire on downgrade or cancellation. `VENDOR` |
-| **03** | **Runs the operation, not just the call.** Contact Center AI, Agent AI, Quality AI and Outbound run as one stack, with 80+ connectors, 250+ CRM and ERP integrations, cross-agent trace trees and 100% conversation evaluation. `FORRESTER` `IDC` | **Automates the call, does not run the contact centre.** The Agents docs cover knowledge base and RAG, a workflow builder, testing, analytics, SIP and Twilio telephony, batch outbound, and transfer to a human. Not in the docs: queue management, workforce management, quality management and QA scoring, supervisor monitoring, and case management. It hands a call to a human. It does not run the human side. `VENDOR` |
+| **03** | **Runs the operation, not just the call.** Contact Center AI, Agent AI, Quality AI and Outbound run as one stack, with 80+ connectors, 250+ CRM and ERP integrations, cross-agent trace trees and 100% conversation evaluation. `FORRESTER` `IDC` | **The assist layer shipped, the workforce layer did not.** Agent Assist, supervisor dashboards, compliance flagging and scorecards all exist, so concede them. Absent from their contact-centre page: queueing, workforce management and campaign management. Routing and telephony remain integrations into your existing CCaaS rather than a stack they replace. `VENDOR` |
 | **04** | **Residency by region, on infrastructure you choose.** Public cloud, sovereign regions, private cloud or on-premises. SOC 2 Type II, ISO 27001, PCI DSS, HITRUST, FedRAMP Moderate and GDPR, with BAAs and a public trust centre. Bring-your-own-LLM keeps inference inside the estate. `TRUST CENTRE` | **Residency covers storage, and only on Enterprise.** Isolated environments in the EU, India and Singapore, US by default, described in the docs as "an exclusive feature available to ElevenLabs' Enterprise customers." The same page states processing "may nevertheless occur outside of the selected location" unless Zero Retention Mode is enabled, that regional LLM availability varies, and that custom LLM and webhook integrations may require out-of-region processing. `VENDOR` |
 
 **Trap questions:** "What concurrency do we get in the contract, and what does the 2x burst rate
@@ -102,6 +102,7 @@ CloudTalk and Cekura, who sell against ElevenLabs, and Metadata Marketer, an SEO
 | "Thin customer-service automation and limited production monitoring" | Rival-authored characterisation. Their docs list analytics, testing and A/B testing. |
 | "'Expensive' appears 171 times in G2 reviews; Trustpilot 3.2" | SEO aggregator, unverifiable. Do not quote. |
 | "Governance is unproven, guardrails are just prompts" | **Materially wrong.** They publish a trust centre, SOC 2, GDPR, HIPAA BAAs, Zero Retention Mode and regional residency. |
+| "No agent assist, no QA scoring, no supervisor monitoring" | **Wrong as of Aug 2026.** All are marketed capabilities with a dedicated product page. See Slide 2B. |
 
 ---
 
@@ -170,6 +171,9 @@ schedules the follow-up after the call ends?"
 - [ElevenLabs — Agents platform docs](https://elevenlabs.io/docs/agents-platform/overview) *(what the platform does and does not include)*
 - [ElevenLabs — Data residency docs](https://elevenlabs.io/docs/overview/administration/data-residency) *(regions, Enterprise gating, processing caveat)*
 - [ElevenLabs — Enterprise page](https://elevenlabs.io/enterprise) *(SOC 2, GDPR, HIPAA BAAs, Zero Retention, named customers)*
+- [ElevenLabs — Agent Assist](https://elevenlabs.io/agents/agent-assist) *(human-agent assist, supervisor dashboard, compliance flagging, scorecards, role-play training)*
+- [ElevenLabs — AI call center](https://elevenlabs.io/agents/ai-call-center) *(IVR replacement, routing, CCaaS/ticketing/CRM as integrations; queueing, WFM and campaign management absent)*
+- [ElevenLabs — homepage portfolio](https://elevenlabs.io/) *(media product breadth: Music, SFX, Dubbing, Narration, Scribe)*
 - [ElevenLabs — Trust Center](https://compliance.elevenlabs.io/)
 - [ElevenLabs — Series D](https://elevenlabs.io/blog/series-d) · [$500M ARR](https://elevenlabs.io/blog/500m-arr-and-new-investors) · [CNBC on the $11B valuation](https://www.cnbc.com/2026/02/04/nvidia-backed-ai-startup-elevenlabs-11-billion-valuation.html)
 - *Removed as rival-authored or unverifiable:* CloudTalk, Cekura, Metadata Marketer
@@ -227,6 +231,43 @@ maintain ourselves?"
 to standardise a service organisation on. It is weak when the buyer is an engineering team that
 explicitly wants a framework to own, self-host and control. Against that buyer, do not run this
 slide — run data residency, LLM-agnosticism and total cost instead, and expect a real contest.
+
+
+---
+
+## Slide 2B · Kore.ai vs ElevenLabs — enterprise platform completeness
+### Use this with Slide 2A. Together they are the strongest pairing.
+
+**Eyebrow:** STRATEGIC POSITIONING ▪ KORE.AI VS ELEVENLABS
+**Action title:** Their portfolio grows sideways into media. Ours grows up into the enterprise
+**Strategic frame:** ElevenLabs now covers the customer conversation well. An enterprise AI platform
+also has to serve the enterprise's own work, and ship the industry logic that makes a quarter.
+
+> ⚠️ **Read this before presenting.** ElevenLabs has moved fast into CX and now markets **Agent
+> Assist for human agents**: real-time next-best-action and knowledge surfacing on live calls, a
+> **supervisor dashboard** with live transcripts, sentiment and compliance flags, **automatic
+> flagging of missed disclosures and script deviations**, **auto-generated scorecards**, after-call
+> summaries with CRM sync, and **role-play training agents** with tone scoring. Agents run across
+> **voice, chat, email and WhatsApp in 70+ languages**. **Concede every bit of that in one
+> sentence.** Anyone claiming ElevenLabs has no agent assist or QA will be corrected in the room.
+
+| | **Kore.ai** — ENTERPRISE AI PLATFORM | **ElevenLabs** — VOICE AND MEDIA PLATFORM WITH CX |
+|---|---|---|
+| **01** | **Breadth runs into the enterprise.** AI for Service (AI Agents, Agent AI assistance, Agentic Contact Center, Quality AI, Proactive Outreach) and AI for Work (Enterprise Search, Intelligent Orchestrator, prebuilt agents, admin controls), on one Artemis foundation. `VENDOR` | **Breadth runs into media.** Text to Speech, Music, Sound Effects, Voice Cloning, Dubbing, Narration and Scribe, alongside ElevenAgents and the API. World-class, and pointed at audio production rather than enterprise operations. `VENDOR` |
+| **02** | **Serves employees, not only customers.** Enterprise Search, an intelligent orchestrator for internal agents, prebuilt HR, IT and Recruiting agents, and admin controls over the whole AI estate. `VENDOR` | **No employee side.** No enterprise search, no orchestrator for internal agents, no prebuilt HR, IT or Recruiting agents, and no governance plane spanning an enterprise's own AI. The platform ends at the customer conversation. `VENDOR` |
+| **03** | **Prebuilt regulated industry applications.** Banking, Healthcare, Retail, IT, HR and Recruiting ship with regulated workflows and integrations, so the vertical journey is configured. `VENDOR` | **Function templates, not industry applications.** Prebuilt templates cover sales, support and scheduling. The banking or healthcare journey, and its compliance logic, is the customer's build. `VENDOR` |
+| **04** | **Owns the contact-centre stack end to end.** Agent assist, quality, outbound and the AI agents run on one platform, with 300+ integrations and 40+ channels. `VENDOR` | **Assist yes, workforce no, and the stack stays yours.** Agent assist, supervisor dashboards and scorecards are real. Queueing, workforce management and campaign management are absent from their contact-centre page, and routing and telephony are integrations into your existing CCaaS. `VENDOR` |
+
+**Trap questions:** "Assist and scorecards are there. Who runs queueing, workforce management and
+campaign management, and are routing and telephony yours or our existing CCaaS?" · "What serves our
+**employees** — search, internal agents, and the governance plane over them?" · "Is a banking or
+healthcare journey a prebuilt application, or our build on a sales template?" · "Three years out,
+how much of our enterprise AI estate does this platform cover?"
+
+**Where this lands and where it does not.** Decisive with a buyer standardising an enterprise AI
+estate across customers *and* employees. Weak where the buyer only wants the best voice agent for a
+customer-facing use case — there ElevenLabs is genuinely strong, and the argument moves to Slide 2A
+(orchestration ceiling), concurrency economics, and processing-level residency.
 
 
 ---

@@ -479,13 +479,31 @@ claimed in a **rival's** security review but are **not** stated on ElevenLabs' o
   concurrency is "elevated" but **unpublished**, and unused paid credits **expire on downgrade or
   cancellation**. For a contact centre sizing hundreds of simultaneous calls, concurrency and its
   cost curve is the first question, not the voice ([ElevenLabs](https://elevenlabs.io/pricing/agents)).
-- 📡 **Automates the call; does not run the contact centre.** Their own Agents docs cover knowledge
-  base and RAG, a visual workflow builder, testing and analytics, SIP/Twilio telephony, batch
-  outbound, and **transfer to a human** (conference, blind, or SIP REFER, with a summary passed to
-  the operator). **Concede the handoff — it exists.** Absent from the docs: **queue management,
-  workforce management, quality management/QA scoring, supervisor monitoring or barge, and case
-  management.** It hands a call to a human; it does not run the human side of the operation
-  ([ElevenLabs docs](https://elevenlabs.io/docs/agents-platform/overview)).
+- 📡 **Contact-centre coverage: the assist layer shipped, the workforce layer did not.**
+  ⚠️ *Corrected Aug 2026 — an earlier version of this card said ElevenLabs had no agent assist,
+  QA scoring or supervisor monitoring. That is now wrong.* ElevenLabs markets **Agent Assist for
+  human agents**: real-time next-best-action prompts, knowledge-base articles and objection-handling
+  scripts on live calls; a **supervisor live dashboard** with real-time transcripts, sentiment
+  signals and compliance flags; **automatic flagging of non-compliant language, missed disclosures
+  and script deviations**; **auto-generated scorecards**, call summaries, contact tagging and
+  CRM/ticketing sync; and **role-play training agents** with tone scoring
+  ([ElevenLabs](https://elevenlabs.io/agents/agent-assist)). Agents span **voice, chat, email and
+  WhatsApp in 70+ languages**. **Concede all of this.** What remains absent from their own
+  contact-centre page: **queueing, workforce management and campaign management** — and routing
+  and telephony stay **integrations into your existing CCaaS** ("connect your CCaaS, ticketing and
+  CRM"; SIP, Twilio, Genesys and 200+ providers), not a stack they replace
+  ([ElevenLabs](https://elevenlabs.io/agents/ai-call-center)).
+- 🧩 **Portfolio direction: sideways into media, not up into the enterprise.** *The structural gap
+  vs. Artemis.* ElevenLabs' breadth is **Text to Speech, Music, Sound Effects, Voice Cloning,
+  Dubbing, Narration and Scribe (STT)** — a creative and media production stack — plus ElevenAgents
+  and the API. There is **no employee-side AI**: no enterprise search, no intelligent orchestrator
+  for internal agents, no prebuilt HR, IT or Recruiting agents, and no admin/governance plane
+  spanning an enterprise's own AI estate. Kore.ai's breadth runs into **AI for Service and AI for
+  Work**; ElevenLabs' runs into audio production.
+- ⏱️ **Function templates, not regulated industry applications.** Prebuilt templates cover **sales,
+  support and scheduling**. Kore.ai ships **Banking, Healthcare, Retail, IT, HR and Recruiting**
+  applications with regulated workflows and integrations. On ElevenLabs, the vertical journey and
+  its compliance logic are the customer's build.
 - 🛡️ **Residency covers storage, and only on Enterprise.** Their docs: isolated environments in
   **EU, India and Singapore** with **US default**, and **"Data residency is an exclusive feature
   available to ElevenLabs' Enterprise customers."** Critically, **"processing may nevertheless
@@ -507,6 +525,9 @@ claimed in a **rival's** security review but are **not** stated on ElevenLabs' o
   ~1,140 G2 reviews"~~ — Metadata Marketer, an SEO aggregator. **Unverified; do not quote.**
 - ~~"governance depth unproven / guardrails by instruction"~~ — **materially wrong.** ElevenLabs
   publishes a trust centre, SOC 2 and GDPR, HIPAA BAAs, Zero Retention Mode and regional residency.
+- ~~"no agent assist, no QA scoring, no supervisor monitoring, no case management"~~ — **wrong as of
+  Aug 2026.** All of those are marketed capabilities. See the corrected bullet above. This was the
+  second time this card understated a shipped capability; check their product pages before every use.
 
 **Kore.ai counter:** Concede voice quality in the first sentence, concede the company's scale, and
 concede that human transfer works. Then move to the operating layer and the category: Contact
@@ -518,12 +539,16 @@ holds **SOC 2 Type II, ISO 27001, PCI DSS, HITRUST, FedRAMP Moderate and GDPR**,
 **bring-your-own-LLM** so inference need not leave the estate. Position ElevenLabs as a **voice
 layer Kore.ai can consume**, not a platform that replaces one.
 **Trap Qs:** "What concurrency do we get in the contract, and what does the 2× burst rate cost at
-our peak?" · "Who runs queueing, workforce management and QA scoring for the human agents once the
-bot transfers the call?" · "Residency covers storage — will *processing* stay in region, including
-your LLM calls and our webhooks?" · "Which independent analyst has evaluated you for customer
-service, rather than for text-to-speech?"
-**Triggers:** contact-centre operating layer build-out (queueing/WFM/QM/case management), published
-Enterprise concurrency, first CX analyst evaluation, ISO 27001 / PCI DSS confirmation on their own
+our peak?" · "Assist and scorecards are there — who runs **queueing, workforce management and
+campaign management**, and are routing and telephony yours or our existing CCaaS?" · "What serves
+our **employees** — search, internal agents, and the governance plane over them?" · "Is a banking
+or healthcare journey a prebuilt application, or our build on a sales/support template?" ·
+"Residency covers storage — will *processing* stay in region, including your LLM calls and our
+webhooks?" · "Which independent analyst has evaluated you for customer service, rather than for
+text-to-speech?"
+**Triggers:** **workforce layer build-out (queueing, WFM, campaign management)**, **any move into
+employee-side AI or enterprise search**, **prebuilt regulated industry applications**, a CCaaS
+acquisition, published Enterprise concurrency, first CX analyst evaluation, ISO 27001 / PCI DSS confirmation on their own
 pages, FedRAMP or HITRUST, processing-level residency guarantees, CCaaS acquisitions or
 partnerships, pricing changes.
 

@@ -84,10 +84,29 @@ systems, and leave an auditable trail — proven at scale, by independent evalua
 | **01** | **Proven at enterprise scale, independently.** Leader across six analyst evaluations — Gartner MQ 2025, two Forrester Waves, two Everest PEAK matrices and IDC MarketScape — with global enterprise deployments. `GARTNER` `FORRESTER` `EVEREST` `IDC` | **Early-stage proof.** $5.5M Series A led by Arkam (Jan 2026), ~$6.6M raised in total, 20+ customers and ~1.5M conversations/month, concentrated in India. No Gartner, Forrester, Everest or IDC evaluation. `PUBLIC NEWS` `VENDOR` |
 | **02** | **Your data stays where the regulator requires.** Public cloud, sovereign regions, private cloud or on-premises, with data residency by region. SOC 2 Type II, ISO 27001, PCI DSS, HITRUST, FedRAMP Moderate and GDPR, BAAs signed, and a public trust centre. Bring-your-own-LLM keeps inference off third-party APIs, with PII tokenization and immutable audit trails. `VENDOR` `TRUST CENTRE` | **Data residency is roadmap, not shipped.** Ringg's own Series A announcement says the capital funds work to enable on-premise deployments for enterprises needing stricter compliance and data residency assurances, and to eliminate dependence on third-party APIs. So today there is no on-prem option, no stated regional residency, and customer audio and PII transit third-party model, STT and TTS APIs. `PUBLIC NEWS` `VENDOR` |
 | **03** | **Compliance you can evidence in procurement.** Attestation reports and certifications are published and reviewable before a contract, not asserted on a web page. `TRUST CENTRE` | **Compliance is self-asserted.** SOC 2, encryption and data anonymization appear as marketing copy on the site, HIPAA on the healthcare page. No public trust centre, SOC 2 Type II report, ISO 27001, PCI DSS, HITRUST, FedRAMP, or published DPDP or GDPR position found as of August 2026. `VENDOR` |
-| **04** | **The platform does the work after the call.** 80+ connectors and 250+ CRM and ERP integrations, multi-step flows across systems, cross-agent trace trees and 100% conversation evaluation. `FORRESTER` `IDC` `EVEREST` | **The platform stops at the call.** Published connectors are Google Sheets, Typeform, Shopify, Calendly, Notion and HubSpot plus a generic API. Reviewers report the agent struggles with interruptions and complex requests, complex branching is hard to configure, and analytics are too shallow to show where calls break down. `G2` `PEER REVIEWS` `VENDOR` |
+| **04** | **The platform does the work after the call.** 80+ connectors and 250+ CRM and ERP integrations, multi-step flows across systems, cross-agent trace trees and 100% conversation evaluation. `FORRESTER` `IDC` `EVEREST` | **The platform stops at the call.** The published connector list is Google Sheets, Typeform, Shopify, Calendly, Notion and HubSpot plus a generic API request. No Salesforce or ServiceNow-class CRM, no CCaaS, WFM or QM appears on it, so CRM write-back, follow-ups and retry logic sit with the customer. `VENDOR` |
 
 **Three-point variant.** If the slide must hold three rows, merge 02 and 03 into a single
 governance point (residency roadmap plus self-asserted compliance) and keep 01 and 04.
+
+### Ringg AI — leads to verify, NOT for customer-facing use
+
+These circulate widely and are **retracted from the slide** because the only sources are
+rival vendors selling a Ringg alternative, each asserting what "G2 reviewers" said without
+quoting a review. Verify against the live G2 profile before using any of them.
+
+| Claim | Only found in | How it is attributed |
+|---|---|---|
+| Agent struggles when callers interrupt or ask multi-step questions; analytics could go deeper on where calls break down | [omnidim.io](https://omnidim.io/blogs/alternatives-ringg) *(rival)* | "G2 reviewers note…" — no review quoted |
+| Complex call branching, nuanced agent personas and multi-step conditional logic are difficult or impossible to configure | [tabbly.io](https://www.tabbly.io/blogs/ringg-ai-review-tabbly-alternative) *(rival)* | "G2 reviewers repeatedly flag…" — no review quoted |
+| Struggles with complex multi-step workflows involving conditional logic; analytics shallow | [ringlyn.com](https://www.ringlyn.com/blog/ringlyn-ai-vs-ringg-ai-alternative/) *(rival)* | "independent evaluations suggest…" — no citation |
+| Voice-only, no chat, WhatsApp, SMS or email | tabbly.io *(rival)* | Contradicted by [Ringg's own site](https://www.ringg.ai/), which lists voice, chat, WhatsApp and web |
+
+**Sample-size caveat.** Ringlyn states Ringg AI's G2 profile carries only about **five
+reviews**. If accurate, no claim of a repeated reviewer pattern is credible, and the 4.8/5
+rating is a five-review average. G2 blocks automated retrieval and the G2 API account has no
+catalog access for this product, so neither the count nor the rating was independently
+confirmed. **Check the live profile before quoting either number.**
 
 **Trap questions:** "Where does our customer audio and PII physically live, and which
 third-party APIs does it pass through before you answer?" · "Can we see the SOC 2 Type II

@@ -468,8 +468,10 @@ enterprise list pricing.
 **Analyst standing:** **none** — not evaluated by Gartner, Forrester, Everest or IDC.
 **Customers (vendor-listed):** CRED, PharmEasy, Flipkart, PolicyBazaar, Groww, DCB Bank, Practo,
 Tabby, smallcase, Shiprocket.
-**G2:** 4.8/5, praised for regional-language coverage, cost and easy telephony setup — a small,
-recent review base weighted to SMB/mid-market, not enterprise CX.
+**G2:** reported at 4.8/5 for regional-language coverage, cost and easy telephony setup.
+**Treat the rating as unconfirmed** — a rival's comparison page puts the profile at roughly
+**five reviews**, G2 blocks automated retrieval, and the G2 API account has no catalog access
+for this product. Verify the live profile before quoting the rating or the count.
 
 **Exploitable weaknesses**
 - 🔎 **Early-stage proof.** ~$6.6M total funding and 20+ customers against enterprise platforms
@@ -492,10 +494,14 @@ recent review base weighted to SMB/mid-market, not enterprise CX.
   Calendly, Notion and HubSpot plus a generic API request — no Salesforce/ServiceNow-class CRM
   depth, no CCaaS/WFM/QM, and post-call execution (CRM write-back, follow-up, retry logic) lands
   on the customer ([Ringg AI](https://www.ringg.ai/)).
-- 🛡️ **Orchestration and observability ceiling.** Reviewers report the agent **struggles with
-  interruptions and complex requests**, that **complex call branching and multi-step conditional
-  logic are hard to configure**, and that **analytics are too shallow to see where calls break
-  down** ([G2](https://www.g2.com/products/ringg-ai/reviews)).
+- 🛡️ **Orchestration ceiling — UNVERIFIED, do not use externally.** Claims that the agent
+  struggles with interruptions and multi-step requests, that complex branching is hard to
+  configure, and that analytics are shallow, trace **only to rival vendors** selling a Ringg
+  alternative ([omnidim.io](https://omnidim.io/blogs/alternatives-ringg),
+  [tabbly.io](https://www.tabbly.io/blogs/ringg-ai-review-tabbly-alternative),
+  [ringlyn.com](https://www.ringlyn.com/blog/ringlyn-ai-vs-ringg-ai-alternative/)). Each asserts
+  "G2 reviewers say" without quoting a review. Same source class as the "voice-only" claim this
+  card already rejects. **Verify against the live G2 profile before any use.**
 
 **Kore.ai counter:** Concede price-per-minute and Indic-language coverage — then move the
 conversation to what an enterprise actually buys. On residency and governance the contrast is

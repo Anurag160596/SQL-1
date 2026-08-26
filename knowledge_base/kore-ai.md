@@ -36,9 +36,20 @@ Kore.ai's central wedge vs. "prompt + custom code" competitors:
 ## Analyst standing (verified, 2025–26)
 The single strongest proof point — most of the watchlist is **not** a Leader in the
 CX-specific conversational-AI evaluations where Kore.ai is:
-- **Leader, Gartner Magic Quadrant for Conversational AI Platforms 2025** — only Google
-  and Kore.ai cited as Leaders. (Notably: Salesforce/Agentforce and IBM are *not*
-  Leaders here; IBM slipped to Challenger.)
+- **Leader, Gartner Magic Quadrant for Conversational AI Platforms 2026** (current report) —
+  Leaders are **Google, Salesforce, SoundHound AI and Kore.ai**. Kore.ai is the **only vendor
+  that is a Leader in both this MQ and the latest Forrester Wave**.
+- **Leader, Gartner MQ for Conversational AI Platforms 2025** (prior report) — only Google and
+  Kore.ai cited as Leaders; IBM slipped to Challenger.
+
+> ⚠️ **2025 → 2026 MQ movement — other battlecards need a sweep.** **Salesforce** and **Netomi**
+> entered the quadrant, Salesforce straight into **Leaders**; **SoundHound AI** rose Visionary →
+> **Leader**; **Boost.ai** fell Leader → **Challenger**; **Cognigy** fell Leader → **Visionary**;
+> **DRUID AI** fell Challenger → **Niche Player**; **LivePerson** was removed entirely. **Sierra**
+> and **Rasa** received honorable mentions without quadrant positions.
+> This changes the framing on the **Agentforce** and **NICE (Cognigy)** cards in particular — the
+> "NiCE Cognigy is the one peer-Leader" line below and any "Agentforce is not a Leader" line are
+> now **out of date**. Those cards have not yet been updated.
 - **Leader, Forrester Wave: Conversational AI Platforms for Customer Service, Q2 2026** —
   Leaders are **Kore.ai, NiCE Cognigy, and Omilia**; Forrester credited Kore.ai's offering
   strength, AI model management, governance, and back-end integrations.

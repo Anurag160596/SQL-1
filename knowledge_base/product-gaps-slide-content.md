@@ -37,35 +37,59 @@ engineers must first assemble, host and maintain.
 |---|---|---|
 | **01** | **Domain experts build, not just developers.** ABL lets business owners author compile-valid agents; broken handoffs, invalid tool references and unreachable steps are caught at build time. `GARTNER` `FORRESTER` | **Every change needs an ML engineer.** G2 reviewers: "not a plug-and-play tool… requires much technical expertise in NLP concepts, Python and deployment workflows"; "designed for machine learning experts." `G2` `PEER REVIEWS` |
 | **02** | **Managed platform, forecastable cost.** One stack across voice and digital with per-agent, per-intent and per-tool cost attribution — no hosting, scaling or upgrade burden carried by the customer. `EVEREST` `IDC` | **Five-figure floor plus your own infrastructure.** The free Developer Edition caps at 1,000 conversations/month (100 for internal agents); real volume and support start around $35,000/year, on top of self-hosted infra and ops. Peer reviewers flag "licensing and cost are complex." `VENDOR` `PEER REVIEWS` |
-| **03** | **Validated, and voice-native out of the box.** Leader in the Gartner MQ for Conversational AI Platforms 2025 and the Forrester Wave Q2 2026; in-house voice gateway with SSML, barge-in and sub-500ms scripted turns. `GARTNER` `FORRESTER` | **No CX analyst validation; voice is a build project.** Absent from both the 2025 Gartner MQ and the Forrester Wave. Voice is assembled by the customer — STT → Rasa server → TTS, a 1–3 second round trip, with barge-in as custom logic. `GARTNER` `FORRESTER` `PEER REVIEWS` |
+| **03** | **Leader, and voice-native out of the box.** Named a Leader in the Gartner MQ for Conversational AI Platforms 2026 and the Forrester Wave for customer service, the only vendor leading both. In-house voice gateway with SSML, barge-in and sub-500ms scripted turns. `GARTNER` `FORRESTER` | **Evaluated, never a Leader, and voice is a build project.** Gartner gave Rasa an honorable mention in the 2026 MQ with no quadrant position, and Forrester included it in the 2026 Wave without naming it a Leader. As a self-hosted framework, the customer assembles and operates the voice path, STT to Rasa to TTS, and implements barge-in. `GARTNER` `FORRESTER` |
 
 **Trap questions:** "Who ships a policy change on Friday — a business owner or your ML
 engineers?" · "What is the fully-loaded cost once you add hosting, ops, upgrades and the
-people to own the stack?" · "Which independent analyst has evaluated Rasa for customer service?"
+people to own the stack?" · "Gartner and Forrester have both looked at Rasa. Which one names
+it a Leader?"
+
+> ⚠️ **Corrected Aug 2026.** An earlier draft said Rasa has "no CX analyst validation." That is
+> wrong for 2026 and a prepared buyer will catch it. Rasa *is* evaluated. It is simply never a
+> Leader and holds no quadrant position. Use that line instead.
+
+> **Caveat on the latency figure.** The widely quoted "1–3 second round trip" for a Rasa voice
+> build comes from Voiceflow and Dasha, both of whom sell against Rasa. The architecture is
+> verifiable from Rasa's docs; the number is not. Benchmark it rather than quoting it.
 
 ---
 
 ## Slide 2 · Kore.ai vs ElevenLabs
 
 **Eyebrow:** STRATEGIC POSITIONING ▪ KORE.AI VS ELEVENLABS
-**Action title:** Great voice is the easy part — the platform around it wins the deal
-**Strategic frame:** A lifelike voice does not resolve a regulated customer request.
-Enterprises need the orchestration, governance and cost control that sit behind it.
+**Action title:** Great voice is the easy part. Running the contact centre wins the deal
+**Strategic frame:** The question is not whether the voice is good. It is whether the platform
+runs the operation behind it, at the capacity and in the jurisdiction the business requires.
 
-> **Positioning note — do not attack voice quality.** ElevenLabs' synthesis is genuinely
-> best-in-class and Kore.ai can consume it. Concede it in the first sentence, then move the
-> conversation to everything that surrounds the voice.
+> **Positioning note — do not run a "small vendor" play.** ElevenLabs raised $500M at an **$11B
+> valuation** in Feb 2026 and crossed **$500M ARR** in April, with Cisco Webex and TELUS Digital
+> partnerships. Concede voice quality, concede scale, and concede that human transfer works.
+> Every gap below is taken from ElevenLabs' own pricing page, docs, or enterprise page.
 
-| | **Kore.ai** — ENTERPRISE-GRADE, AI-NATIVE PLATFORM | **ElevenLabs** — VOICE INFRASTRUCTURE |
+| | **Kore.ai** — ENTERPRISE-GRADE, AI-NATIVE PLATFORM | **ElevenLabs** — VOICE PLATFORM, CX ADJACENT |
 |---|---|---|
-| **01** | **A complete CX stack, not a component.** Contact Center AI, Agent AI, Quality AI and Outbound run as one stack with 80+ connectors and 250+ CRM/ERP integrations, plus prebuilt healthcare, banking and retail apps. `FORRESTER` `IDC` | **Ships a voice layer; the CX platform is your project.** Independent reviews describe a platform where "someone has to design the agent, wire the telephony, and connect the CRM," with thin customer-service automation and limited production monitoring. No native WFM, QM or case management. `PEER REVIEWS` |
-| **02** | **Cost you can forecast and attribute.** Per-agent, per-intent and per-tool cost attribution, with model tiering that routes the simple ~80% to fast models and the complex ~20% to reasoning models. `EVEREST` | **Credit burn and 2× burst pricing.** Overage runs $0.08/min and doubles to $0.16/min once concurrency is exceeded; credits roll over only two cycles and are forfeited on downgrade. In the G2 corpus "expensive" appears 171 times and pricing complaints another 148; Trustpilot sits at 3.2 on pricing opacity. `G2` `VENDOR` |
-| **03** | **Policy enforced at runtime, not in a prompt.** Deterministic zero-LLM mode for compliance paths, compile-time validation, cross-agent trace trees and 100% conversation evaluation — an auditable record, not a best-effort instruction. `EVEREST` | **Guardrails by instruction; no CX analyst validation.** Hallucination control is prompt guidance ("answer from the knowledge base, else say I don't know") plus pre-deployment simulations. Absent from the Gartner MQ for Conversational AI and the Forrester Wave for customer service; its Gartner Peer Insights presence sits in text-to-speech and dubbing categories. `GARTNER` `FORRESTER` `VENDOR` |
+| **01** | **Leader in the CX category, twice over.** Named a Leader in the Gartner MQ for Conversational AI Platforms 2026, alongside Google, Salesforce and SoundHound AI, and a Leader in the Forrester Wave for customer service. The only vendor leading both. `GARTNER` `FORRESTER` | **Not evaluated in the CX category.** Does not appear in the Gartner MQ for Conversational AI Platforms 2026 or the Forrester Wave for customer service. Its Gartner Peer Insights presence sits in text-to-speech and AI dubbing. This is a category-position gap, not a company-quality gap. `GARTNER` `FORRESTER` |
+| **02** | **Capacity and cost sized in the contract.** One stack across voice and digital, with per-agent, per-intent and per-tool cost attribution, and model tiering that routes the simple 80% to fast models. `EVEREST` | **Capacity is the constraint, and exceeding it costs double.** The top self-serve tier, Business at $990 a month, carries 12,375 minutes and 40 concurrent calls. Burst allows up to 3x that concurrency with the excess "charged at double the standard rate," so a volume spike is also a price spike. Enterprise concurrency is elevated but unpublished. Unused paid credits expire on downgrade or cancellation. `VENDOR` |
+| **03** | **Runs the operation, not just the call.** Contact Center AI, Agent AI, Quality AI and Outbound run as one stack, with 80+ connectors, 250+ CRM and ERP integrations, cross-agent trace trees and 100% conversation evaluation. `FORRESTER` `IDC` | **Automates the call, does not run the contact centre.** The Agents docs cover knowledge base and RAG, a workflow builder, testing, analytics, SIP and Twilio telephony, batch outbound, and transfer to a human. Not in the docs: queue management, workforce management, quality management and QA scoring, supervisor monitoring, and case management. It hands a call to a human. It does not run the human side. `VENDOR` |
+| **04** | **Residency by region, on infrastructure you choose.** Public cloud, sovereign regions, private cloud or on-premises. SOC 2 Type II, ISO 27001, PCI DSS, HITRUST, FedRAMP Moderate and GDPR, with BAAs and a public trust centre. Bring-your-own-LLM keeps inference inside the estate. `TRUST CENTRE` | **Residency covers storage, and only on Enterprise.** Isolated environments in the EU, India and Singapore, US by default, described in the docs as "an exclusive feature available to ElevenLabs' Enterprise customers." The same page states processing "may nevertheless occur outside of the selected location" unless Zero Retention Mode is enabled, that regional LLM availability varies, and that custom LLM and webhook integrations may require out-of-region processing. `VENDOR` |
 
-**Trap questions:** "Who builds, monitors and governs the agent once the voice sounds
-great — and what does that team cost?" · "For a regulated flow, is the policy enforced at
-runtime or written into a prompt, and what do you show an auditor?" · "What is your
-forecast cost when volume spikes past your concurrency limit at 2× per minute?"
+**Trap questions:** "What concurrency do we get in the contract, and what does the 2x burst rate
+cost at our peak?" · "Who runs queueing, workforce management and QA scoring for the human agents
+once the bot transfers the call?" · "Residency covers storage. Will processing stay in region,
+including your LLM calls and our webhooks?" · "Which independent analyst has evaluated you for
+customer service rather than for text-to-speech?"
+
+### ElevenLabs — what NOT to say
+
+The earlier draft of this slide carried four claims that do not survive checking. They came from
+CloudTalk and Cekura, who sell against ElevenLabs, and Metadata Marketer, an SEO aggregator.
+
+| Do not say | Why |
+|---|---|
+| "Business is $825/month for 11M credits" | **Wrong.** The vendor page says **$990/month for 12,375 minutes**. |
+| "Thin customer-service automation and limited production monitoring" | Rival-authored characterisation. Their docs list analytics, testing and A/B testing. |
+| "'Expensive' appears 171 times in G2 reviews; Trustpilot 3.2" | SEO aggregator, unverifiable. Do not quote. |
+| "Governance is unproven, guardrails are just prompts" | **Materially wrong.** They publish a trust centre, SOC 2, GDPR, HIPAA BAAs, Zero Retention Mode and regional residency. |
 
 ---
 
@@ -123,14 +147,17 @@ schedules the follow-up after the call ends?"
 - [Gartner Peer Insights — Rasa Platform](https://www.gartner.com/reviews/product/rasa-platform)
 - [Voiceflow — Rasa review: CALM, pricing and alternatives](https://www.voiceflow.com/blog/rasa-chatbot) *(tier and conversation-cap figures; vendor-adjacent blog, cross-checked against Rasa docs)*
 - [Rasa documentation — editions and licensing](https://rasa.com/docs/pro/intro/)
-- [CX Today — Gartner MQ for Conversational AI Platforms 2025 rundown](https://www.cxtoday.com/customer-analytics-intelligence/gartner-magic-quadrant-for-conversational-ai-platforms-2025-the-rundown/) *(full quadrant list; Rasa appears nowhere)*
+- [CX Today — Gartner MQ for Conversational AI Platforms **2026** rundown](https://www.cxtoday.com/customer-analytics-intelligence/gartner-magic-quadrant-conversational-ai-2026/) *(current report: Leaders are Google, Salesforce, SoundHound AI, Kore.ai; Rasa and Sierra get honorable mentions without quadrant positions)*
+- [CX Today — Gartner MQ 2025 rundown](https://www.cxtoday.com/customer-analytics-intelligence/gartner-magic-quadrant-for-conversational-ai-platforms-2025-the-rundown/) *(prior report; Rasa absent entirely)*
 
-**ElevenLabs**
-- [ElevenLabs — Agents pricing](https://elevenlabs.io/pricing/agents)
-- [CloudTalk — ElevenLabs voice agent review](https://www.cloudtalk.io/blog/elevenlabs-voice-agent-review/) and [pricing guide](https://www.cloudtalk.io/blog/elevenlabs-pricing/)
-- [Cekura — ElevenLabs review: what real users say](https://www.cekura.ai/blogs/elevenlabs-review)
-- [Metadata Marketer — ElevenLabs intelligence report](https://metadatamarketer.com/elevenlabs-intelligence-report/) *(G2 keyword counts, Trustpilot 3.2)*
-- [Gartner Peer Insights — ElevenLabs](https://www.gartner.com/reviews/product/elevenlabs-1305017004)
+**ElevenLabs** *(rebuilt on primary sources; rival-authored sources removed)*
+- [ElevenLabs — Agents pricing](https://elevenlabs.io/pricing/agents) *(tiers, concurrency, burst, overage, credit expiry)*
+- [ElevenLabs — Agents platform docs](https://elevenlabs.io/docs/agents-platform/overview) *(what the platform does and does not include)*
+- [ElevenLabs — Data residency docs](https://elevenlabs.io/docs/overview/administration/data-residency) *(regions, Enterprise gating, processing caveat)*
+- [ElevenLabs — Enterprise page](https://elevenlabs.io/enterprise) *(SOC 2, GDPR, HIPAA BAAs, Zero Retention, named customers)*
+- [ElevenLabs — Trust Center](https://compliance.elevenlabs.io/)
+- [ElevenLabs — Series D](https://elevenlabs.io/blog/series-d) · [$500M ARR](https://elevenlabs.io/blog/500m-arr-and-new-investors) · [CNBC on the $11B valuation](https://www.cnbc.com/2026/02/04/nvidia-backed-ai-startup-elevenlabs-11-billion-valuation.html)
+- *Removed as rival-authored or unverifiable:* CloudTalk, Cekura, Metadata Marketer
 
 **Ringg AI**
 - [YourStory — Ringg AI raises $5.5M Series A](https://yourstory.com/2026/01/voice-ai-startup-ringgai-seriesa-arkam-ventures)
@@ -140,7 +167,8 @@ schedules the follow-up after the call ends?"
 - [G2 — Ringg AI reviews](https://www.g2.com/products/ringg-ai/reviews)
 
 **Kore.ai position**
-- Gartner MQ for Conversational AI Platforms 2025 (Leader — Google and Kore.ai)
+- **Gartner MQ for Conversational AI Platforms 2026 (current) — Leader**, with Google, Salesforce and SoundHound AI. Kore.ai is the only vendor leading both this MQ and the latest Forrester Wave.
+- Gartner MQ for Conversational AI Platforms 2025 (prior — Leaders were Google and Kore.ai)
 - Forrester Wave: Conversational AI Platforms for Customer Service, Q2 2026 (Leader — Kore.ai, NiCE Cognigy, Omilia)
 - [Kore.ai Trust Center](https://trust.kore.ai/) — published certifications and attestation reports
 - Kore.ai deployment and compliance posture: public cloud, sovereign regions, private cloud and on-premises with data residency by region; SOC 2 Type II, ISO 27001, PCI DSS, HITRUST, FedRAMP Moderate, GDPR, BAAs; bring-your-own-LLM

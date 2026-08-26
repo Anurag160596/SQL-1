@@ -364,10 +364,13 @@ alternative-vendor blogs are contradicted by Ringg's own site and are not used h
 Reddit was not directly retrievable at build time; nothing here is sourced to Reddit.
 
 ## Rasa · Voice & dev-framework | open-core developer framework, CALM
-**What it is:** Pro-code conversational-AI framework. Post-2024 it splits into the free
-**Rasa Developer Edition** (ships CALM), **Rasa Pro** (the licensed pro-code framework +
-infrastructure) and **Rasa Studio** (no-code UI on top). Self-hosted by design — the
-customer owns hosting, scaling, monitoring and upgrades.
+**What it is:** Pro-code conversational-AI framework, now positioned as an agentic orchestration
+platform. Portfolio: free **Rasa Developer Edition** (ships CALM), **Rasa Pro** (licensed pro-code
+framework + infrastructure), **Rasa Studio** (no-code UI), plus **Rasa Copilot** and **Rasa MCP
+Tools**. Self-hosted by design — the customer owns hosting, scaling, monitoring and upgrades.
+**Genuinely strong and often understated:** CALM, flows, **MCP** and **A2A** (3.14), an orchestrator
+that holds state, built-in voice/telephony connectors, a Studio analytics dashboard, and OTel
+tracing. Concede all of it. The wedge is **portfolio completeness**, not capability-by-capability.
 **Pricing:** Developer Edition free but capped at **1,000 conversations/month** (100/mo for
 internal employee-facing agents); **Growth ≈ $35,000/year** for ~500k conversations with
 support; Enterprise quote-only — plus the customer's own infra and ops cost
@@ -393,23 +396,48 @@ wrong for 2026. The accurate line is *evaluated, never a Leader, no quadrant pos
   ([Gartner Peer Insights](https://www.gartner.com/reviews/product/rasa-platform)).
 - 🔎 **Evaluated, never a Leader.** Honorable mention in the Gartner MQ 2026 with no quadrant
   position; included in the Forrester Wave 2026 but not named a Leader. Kore.ai leads both.
-- 📡 **Voice is a build project.** Rasa is a self-hosted framework, so the customer assembles and
-  operates the voice path (STT → Rasa server → TTS) and implements barge-in themselves.
-  *Caveat: the widely quoted "1–3 second round trip" figure comes from Voiceflow and Dasha, both
-  of whom sell against Rasa. Architecture is verifiable from Rasa's own docs; the latency number
-  is not — benchmark it rather than quoting it.*
+- 📡 **Voice: connectors ship, the stack is still yours.** ⚠️ *Corrected Aug 2026 — do not say
+  "Rasa has no voice" or "voice is built from scratch."* Rasa ships built-in voice connectors for
+  **Twilio Media Streams, Jambonz, AudioCodes and Genesys Cloud AudioConnector**, plus ASR/TTS
+  integrations for **Deepgram, Cartesia, Azure Speech and Rime**, and Studio carries an analytics
+  dashboard (sessions, containment, latency, CSAT). The real gap is commercial and operational:
+  you contract, pay and tune **third-party ASR/TTS vendors separately**, and you run the stack.
+  *The widely quoted "1–3 second round trip" comes from Voiceflow and Dasha, both of whom sell
+  against Rasa — benchmark it, do not quote it.*
+- 🧩 **Portfolio scope: one product line, not an enterprise AI platform.** *The strongest structural
+  gap.* Rasa's portfolio is **Rasa Pro** (pro-code framework), **Rasa Studio** (no-code UI),
+  **Developer Edition** and **Rasa Copilot / MCP Tools**. Absent from Rasa's product docs **and**
+  from the **Spring 2026 release (3.16 / Studio 1.16)**: **agent assist for human agents, quality
+  management or QA scoring, workforce management, outbound campaign management, prebuilt industry
+  applications, enterprise search, and any marketplace of prebuilt agents or templates**
+  ([Rasa Spring 2026 release](https://rasa.com/blog/behind-the-release-notes-product-updates-spring-2026)).
+  Rasa builds and runs the *agent*. It does not equip the human agents behind it, measure their
+  quality, run outbound, serve the employee side of the business, or ship the vertical logic.
+- ⏱️ **No prebuilt vertical accelerators → time-to-value is a build plan.** Kore.ai ships Banking,
+  Healthcare, Retail, IT, HR and Recruiting applications with regulated workflows and integrations
+  out of the box. On Rasa each of those is scoped, built, tested and maintained by the customer.
 
-**Kore.ai counter:** One governed platform instead of a framework plus a build project —
-voice-native gateway (SSML, barge-in, sub-500ms scripted turns) rather than a stitched STT/TTS
-pipeline; ABL lets domain experts author compile-valid agents, so change velocity does not
-depend on the engineering backlog; Leader in the Gartner MQ 2025 and Forrester Wave Q2 2026.
-Concede Rasa's real strength — self-hosting and data control — then price the total build,
-run and maintain cost against a managed enterprise platform.
-**Trap Qs:** "Who ships a policy change on Friday — a business owner, or your ML engineers?" ·
-"What is the fully-loaded cost once you add hosting, ops, upgrades and the people to own the
-stack?" · "Gartner and Forrester have both looked at Rasa — which one names it a Leader?"
-**Triggers:** licensing/tier changes, CALM/Studio releases, movement into a Gartner quadrant or a
-Forrester Leader position, enterprise logos, funding, any move to managed hosting.
+**Kore.ai counter:** Do not fight Rasa capability-by-capability — they have closed most of that
+gap. Fight on **scope**. Kore.ai is a portfolio: **Agent Platform {Artemis}**; **AI for Service**
+(AI Agents, Agent AI assistance, Agentic Contact Center, Quality AI, Proactive Outreach); **AI for
+Work** (Enterprise Search, Intelligent Orchestrator, prebuilt AI agents, admin controls); prebuilt
+**Banking, Healthcare, Retail, IT, HR and Recruiting** applications; a **marketplace** of agents,
+templates and integrations; **300+ integrations and 40+ channels**; runtime-enforced compliance with
+100% audited interactions; and strategic Microsoft (Azure, Teams, M365 Copilot, Copilot Studio) and
+AWS (Bedrock, Q, Connect) integration. Leader in the Gartner MQ 2026 and the Forrester Wave.
+Concede Rasa's real strengths — self-hosting, data control, LLM-agnosticism, genuine agentic
+orchestration — then ask what the customer builds and maintains for everything Rasa does not ship.
+**Trap Qs:** "The bot deflects 60%. Who equips, coaches and scores the humans handling the other
+40% — and which product does that?" · "When we need a banking or healthcare journey live this
+quarter, are we configuring a prebuilt application or scoping a build?" · "What runs our outbound
+campaigns and our employee-facing search?" · "Who ships a policy change on Friday — a business
+owner, or your ML engineers?" · "What is the fully-loaded cost once you add hosting, ops, upgrades
+and the people to own the stack?" · "Gartner and Forrester have both looked at Rasa — which one
+names it a Leader?"
+**Triggers:** **any move into agent assist, quality management, WFM, outbound or enterprise search**
+(that would close the completeness wedge), prebuilt industry applications, a marketplace launch,
+licensing/tier changes, CALM/Studio releases, movement into a Gartner quadrant or a Forrester Leader
+position, enterprise logos, funding, any move to managed hosting.
 
 ## ElevenLabs · Voice & dev-framework | $11B valuation, ~$500M+ ARR, voice moving into agents
 > **Rebuilt Aug 2026 on primary sources.** The previous version of this card leaned on

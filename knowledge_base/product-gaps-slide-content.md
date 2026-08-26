@@ -43,7 +43,7 @@ engineers must first assemble, host and maintain.
 |---|---|---|
 | **01** | **Domain experts build, not just developers.** ABL lets business owners author compile-valid agents; broken handoffs, invalid tool references and unreachable steps are caught at build time. `GARTNER` `FORRESTER` | **Every change needs an ML engineer.** G2 reviewers: "not a plug-and-play tool… requires much technical expertise in NLP concepts, Python and deployment workflows"; "designed for machine learning experts." `G2` `PEER REVIEWS` |
 | **02** | **Managed platform, forecastable cost.** One stack across voice and digital with per-agent, per-intent and per-tool cost attribution — no hosting, scaling or upgrade burden carried by the customer. `EVEREST` `IDC` | **Five-figure floor plus your own infrastructure.** The free Developer Edition caps at 1,000 conversations/month (100 for internal agents); real volume and support start around $35,000/year, on top of self-hosted infra and ops. Peer reviewers flag "licensing and cost are complex." `VENDOR` `PEER REVIEWS` |
-| **03** | **Leader, and voice-native out of the box.** Named a Leader in the Gartner MQ for Conversational AI Platforms 2026 and the Forrester Wave for customer service, the only vendor leading both. In-house voice gateway with SSML, barge-in and sub-500ms scripted turns. `GARTNER` `FORRESTER` | **Evaluated, never a Leader, and voice is a build project.** Gartner gave Rasa an honorable mention in the 2026 MQ with no quadrant position, and Forrester included it in the 2026 Wave without naming it a Leader. As a self-hosted framework, the customer assembles and operates the voice path, STT to Rasa to TTS, and implements barge-in. `GARTNER` `FORRESTER` |
+| **03** | **Leader, and voice-native out of the box.** Named a Leader in the Gartner MQ for Conversational AI Platforms 2026 and the Forrester Wave for customer service, the only vendor leading both. In-house voice gateway with SSML, barge-in and sub-500ms scripted turns. `GARTNER` `FORRESTER` | **Evaluated, never a Leader, and voice is a build project.** Gartner gave Rasa an honorable mention in the 2026 MQ with no quadrant position, and Forrester included it in the 2026 Wave without naming it a Leader. Rasa does ship voice connectors for Twilio, Jambonz, AudioCodes and Genesys, so concede voice. `GARTNER` `FORRESTER` |
 
 **Trap questions:** "Who ships a policy change on Friday — a business owner or your ML
 engineers?" · "What is the fully-loaded cost once you add hosting, ops, upgrades and the
@@ -54,9 +54,15 @@ it a Leader?"
 > wrong for 2026 and a prepared buyer will catch it. Rasa *is* evaluated. It is simply never a
 > Leader and holds no quadrant position. Use that line instead.
 
-> **Caveat on the latency figure.** The widely quoted "1–3 second round trip" for a Rasa voice
-> build comes from Voiceflow and Dasha, both of whom sell against Rasa. The architecture is
-> verifiable from Rasa's docs; the number is not. Benchmark it rather than quoting it.
+> ⚠️ **Corrected Aug 2026 — do not say Rasa lacks voice.** Rasa ships built-in connectors for
+> **Twilio Media Streams, Jambonz, AudioCodes and Genesys Cloud AudioConnector**, ASR/TTS
+> integrations for **Deepgram, Cartesia, Azure Speech and Rime**, and a Studio analytics dashboard
+> (sessions, containment, latency, CSAT). The honest gap is commercial and operational: separate
+> third-party speech contracts, and you run the stack. The widely quoted "1–3 second round trip"
+> comes from Voiceflow and Dasha, both of whom sell against Rasa. Benchmark it, do not quote it.
+
+**See also Slide 1B**, which reframes Rasa on portfolio completeness. That is the stronger slide
+for an enterprise buyer.
 
 ---
 
@@ -149,6 +155,9 @@ schedules the follow-up after the call ends?"
 ## Sources
 
 **Rasa**
+- [Rasa Spring 2026 release — 3.16 / Studio 1.16](https://rasa.com/blog/behind-the-release-notes-product-updates-spring-2026) *(what shipped, and what is absent from the portfolio)*
+- [Rasa Pro documentation](https://rasa.com/docs/pro/) *(product components: Pro, Studio, Developer Edition, Copilot)*
+- [Kore.ai platform](https://www.kore.ai/platform) *(portfolio scope for the green column)*
 - [G2 — Rasa reviews, pros and cons](https://www.g2.com/products/rasa/reviews?qs=pros-and-cons)
 - [Gartner Peer Insights — Rasa Platform](https://www.gartner.com/reviews/product/rasa-platform)
 - [Voiceflow — Rasa review: CALM, pricing and alternatives](https://www.voiceflow.com/blog/rasa-chatbot) *(tier and conversation-cap figures; vendor-adjacent blog, cross-checked against Rasa docs)*
@@ -184,6 +193,41 @@ schedules the follow-up after the call ends?"
 G2 and Gartner Peer Insights block automated page retrieval, so their content reached this
 document through search-result extracts — re-check the live pages before any customer-facing
 use, and confirm current review counts and ratings.
+
+---
+
+## Slide 1B · Kore.ai vs Rasa — enterprise platform completeness
+### The strongest Rasa slide. Use this one.
+
+**Eyebrow:** STRATEGIC POSITIONING ▪ KORE.AI VS RASA
+**Action title:** Rasa builds the agent. An enterprise platform runs the whole operation
+**Strategic frame:** The agent is one component. A complete enterprise AI platform also equips and
+measures the humans behind it, runs the employee side of the business, and ships the industry logic
+you would otherwise build.
+
+> **Do not fight Rasa capability-by-capability.** They have closed most of that gap: CALM, flows,
+> MCP, A2A, an orchestrator that holds state, built-in Twilio, Jambonz, AudioCodes and Genesys voice
+> connectors, a Studio analytics dashboard, and OpenTelemetry tracing. Concede all of it in one
+> sentence. Then fight on scope, where the difference is structural rather than incremental.
+
+| | **Kore.ai** — ENTERPRISE AI PLATFORM | **Rasa** — AGENT DEVELOPMENT FRAMEWORK |
+|---|---|---|
+| **01** | **A portfolio, not a product line.** Agent Platform {Artemis}, plus AI for Service (AI Agents, Agent AI assistance, Agentic Contact Center, Quality AI, Proactive Outreach) and AI for Work (Enterprise Search, Intelligent Orchestrator, prebuilt agents, admin controls). `VENDOR` | **One product line.** Rasa Pro, Rasa Studio, Developer Edition, Copilot and MCP Tools. Excellent at building and running an agent. That is the whole catalogue. `VENDOR` |
+| **02** | **Equips and measures the humans too.** Agent assist, quality assurance and scoring, and outbound campaigns run on the same platform as the AI agents, so deflected and handled conversations sit in one system of record. `VENDOR` | **The human side of service is absent.** No agent assist, no quality management or QA scoring, no workforce management, and no outbound campaign management appear in Rasa's product documentation or in the Spring 2026 release. The bot deflects; equipping and scoring the humans is someone else's platform. `VENDOR` |
+| **03** | **Prebuilt industry applications.** Banking, Healthcare, Retail, IT, HR and Recruiting ship with regulated workflows and integrations, so a vertical journey is configured rather than built. `VENDOR` | **No prebuilt industry applications.** Every vertical journey, and its compliance logic, is scoped, built, tested and maintained by the customer. Time-to-value is a build plan. `VENDOR` |
+| **04** | **Employee side, marketplace and reach.** Enterprise Search and Intelligent Orchestrator for AI for Work, a marketplace of prebuilt agents and templates, 300+ integrations and 40+ channels, plus Microsoft and AWS strategic integration. `VENDOR` | **Customer-facing only, and you assemble the ecosystem.** No enterprise search, no prebuilt-agent marketplace, no template or integration catalogue. Integrations arrive through MCP and custom actions, which is flexible and is also work. `VENDOR` |
+
+**Trap questions:** "The bot deflects 60%. Who equips, coaches and scores the humans handling the
+other 40%, and which product does that?" · "When we need a banking or healthcare journey live this
+quarter, are we configuring a prebuilt application or scoping a build?" · "What runs our outbound
+campaigns and our employee-facing search?" · "Over three years, how many of these do we build and
+maintain ourselves?"
+
+**Where this lands and where it does not.** This slide is decisive when the buyer wants a platform
+to standardise a service organisation on. It is weak when the buyer is an engineering team that
+explicitly wants a framework to own, self-host and control. Against that buyer, do not run this
+slide — run data residency, LLM-agnosticism and total cost instead, and expect a real contest.
+
 
 ---
 

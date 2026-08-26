@@ -265,4 +265,13 @@ watchlist:
   - name: "IBM Agent Platform"
     query: "IBM watsonx Orchestrate"
     focus: "watsonx Orchestrate / agentic AI, releases, partnerships, enterprise adoption"
+  - name: "Rasa"
+    query: "\"Rasa\" conversational AI OR chatbot framework -\"rasa.io\" -restaurant"
+    focus: "CALM/Rasa Pro & Studio releases, licensing & pricing tier changes, enterprise adoption, funding, any analyst evaluation"
+  - name: "ElevenLabs"
+    query: "ElevenLabs"
+    focus: "ElevenLabs Agents / conversational AI, contact-center & CCaaS partnerships, pricing & credit-model changes, enterprise CX logos, voice-cloning consent or security incidents, funding"
+  - name: "Ringg AI"
+    query: "\"Ringg AI\" OR \"Ringg.ai\" voice agents"
+    focus: "funding, enterprise logos outside India, on-prem/data-residency GA, SOC 2/HIPAA attestation, published pricing, CRM/CCaaS partnerships, any analyst evaluation"
 # ===== END WATCHLIST =====

@@ -10,7 +10,8 @@ so each digest is grounded in who we are, who we track, and how we frame the mar
 |------|--------------|
 | `00-index.md` | This file. |
 | `kore-ai.md` | Kore.ai's own positioning: platform, ABL, analyst standing, key terms. |
-| `competitors.md` | **Living battlecards** for all 13 competitors, built to undercut. |
+| `competitors.md` | **Living battlecards** for all 16 competitors, built to undercut. |
+| `product-gaps-slide-content.md` | Deck-ready **Kore.ai vs Rasa / ElevenLabs / Ringg AI** product-gap columns, three points a side, each tagged with its evidence source. |
 
 ## Battlecard format (competitors.md)
 
@@ -34,6 +35,12 @@ Built from the user's own Google Drive + Notion materials (June 2026):
 - `Kore.ai_vs_PolyAI_Analyst_Validation`, `Kore.ai_vs_Parloa_Analyst_Validation`
 - `Kore_vs_Cresta_Exec`, `Kore_vs_Cresta_GoogleSlides`, `Cresta_vs_Kore_partner`
 - Notion: "Cresta vs Conductor", "ABL Dynamic Value Instrument", "Google's OKF" notes
+
+**Rasa, ElevenLabs and Ringg AI** (added Aug 2026) are the *voice & dev-framework*
+group — a developer framework, voice infrastructure and an early-stage voice-agent
+startup. They are researched from G2, Gartner Peer Insights, vendor pricing pages and
+public news; each claim carries its evidence type, and rival-vendor comparison blogs are
+excluded as sources.
 
 Competitors **without** an internal deck (Sierra, Decagon, Genesys, NICE/Cognigy,
 Five9, Glean, Moveworks, Agentforce, ServiceNow, IBM) were hardened via **web research

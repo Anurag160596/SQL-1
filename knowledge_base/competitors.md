@@ -1,6 +1,6 @@
 # Competitor Battlecards
 
-13 tracked competitors, each as a **living battlecard** built to undercut. Structure:
+16 tracked competitors, each as a **living battlecard** built to undercut. Structure:
 **What it is → Recent (sourced) → Pricing → Analyst standing → Customers →
 Exploitable weaknesses (by lever) → Sales trap questions → Triggers to watch.**
 
@@ -22,7 +22,8 @@ CX analyst validation at all. Only **NiCE Cognigy** is a true peer-Leader.
 Grouping: **CX-native agents** (Sierra, Decagon, Cresta, PolyAI, Parloa) ·
 **CCaaS incumbents** (Genesys, NICE/Cognigy, Five9) ·
 **Horizontal enterprise** (Glean, Moveworks) ·
-**Big-tech platforms** (Agentforce, ServiceNow, IBM).
+**Big-tech platforms** (Agentforce, ServiceNow, IBM) ·
+**Voice & dev-framework challengers** (Rasa, ElevenLabs, Ringg AI).
 
 ---
 
@@ -343,3 +344,158 @@ Leader in 7 *adjacent* AI MQs (Data Science, App Dev, etc.).
 and why did Gartner move IBM to Challenger?" · "How do you forecast RU/token spend for high-volume CX?"
 **Triggers:** Think announcements, Orchestrate/Assistant consolidation, voice/contact-center traction,
 analyst movement.
+
+---
+
+# Group 5 · Voice & dev-framework challengers
+
+Added Aug 2026. These three are **not** enterprise CX platforms — they are a developer
+framework (Rasa), voice infrastructure (ElevenLabs) and an early-stage voice-agent
+startup (Ringg AI). They surface in deals as "cheaper / faster / we'll build it
+ourselves" alternatives, so the wedge is **platform completeness, governance and
+independent validation**, not feature-for-feature voice quality.
+
+**Source discipline for this group:** claims below are tagged by evidence type —
+`G2` / `PEER REVIEWS` (Gartner Peer Insights, TrustRadius, SoftwareAdvice) /
+`PUBLIC NEWS` / `VENDOR` (the vendor's own site or pricing page). Where the only
+available source is a rival vendor's comparison blog, the claim is **excluded** or
+flagged as unverified — several "Ringg is voice-only" claims circulating in
+alternative-vendor blogs are contradicted by Ringg's own site and are not used here.
+Reddit was not directly retrievable at build time; nothing here is sourced to Reddit.
+
+## Rasa · Voice & dev-framework | open-core developer framework, CALM
+**What it is:** Pro-code conversational-AI framework. Post-2024 it splits into the free
+**Rasa Developer Edition** (ships CALM), **Rasa Pro** (the licensed pro-code framework +
+infrastructure) and **Rasa Studio** (no-code UI on top). Self-hosted by design — the
+customer owns hosting, scaling, monitoring and upgrades.
+**Pricing:** Developer Edition free but capped at **1,000 conversations/month** (100/mo for
+internal employee-facing agents); **Growth ≈ $35,000/year** for ~500k conversations with
+support; Enterprise quote-only — plus the customer's own infra and ops cost
+([Voiceflow](https://www.voiceflow.com/blog/rasa-chatbot), [Rasa docs](https://rasa.com/docs/pro/intro/)).
+**Analyst standing:** **not evaluated** in the Gartner MQ for Conversational AI Platforms
+2025 (Leaders: Google, Kore.ai; Rasa appears in no quadrant) or the Forrester Wave for
+Conversational AI Platforms for Customer Service
+([CX Today rundown](https://www.cxtoday.com/customer-analytics-intelligence/gartner-magic-quadrant-for-conversational-ai-platforms-2025-the-rundown/)).
+
+**Exploitable weaknesses**
+- ✳️ **Engineer-only build surface.** G2 reviewers: "not a plug-and-play tool… requires much
+  technical expertise in NLP concepts, Python and deployment workflows"; "designed for machine
+  learning experts." Business users cannot ship a change without a developer
+  ([G2](https://www.g2.com/products/rasa/reviews?qs=pros-and-cons)).
+- 💲 **Cost and licensing bite at scale.** The free tier is a demo-sized cap; real volume
+  starts at five figures a year *plus* self-hosting cost. Gartner Peer Insights reviewers flag
+  **"licensing and cost are complex"** and limited community resources
+  ([Gartner Peer Insights](https://www.gartner.com/reviews/product/rasa-platform)).
+- 🔎/📡 **No CX analyst validation and a hand-built voice path.** Absent from both the Gartner MQ
+  and the Forrester Wave. Voice is assembled by the customer (STT → Rasa server → TTS, a
+  **1–3 second** round trip, with barge-in as custom logic); reviewers also call analytics
+  less comprehensive than competitors
+  ([Voiceflow](https://www.voiceflow.com/blog/rasa-chatbot), [Dasha](https://dasha.ai/tips/rasa-alternatives)).
+
+**Kore.ai counter:** One governed platform instead of a framework plus a build project —
+voice-native gateway (SSML, barge-in, sub-500ms scripted turns) rather than a stitched STT/TTS
+pipeline; ABL lets domain experts author compile-valid agents, so change velocity does not
+depend on the engineering backlog; Leader in the Gartner MQ 2025 and Forrester Wave Q2 2026.
+Concede Rasa's real strength — self-hosting and data control — then price the total build,
+run and maintain cost against a managed enterprise platform.
+**Trap Qs:** "Who ships a policy change on Friday — a business owner, or your ML engineers?" ·
+"What is the fully-loaded cost once you add hosting, ops, upgrades and the people to own the
+stack?" · "Which independent analyst has evaluated Rasa for customer service?"
+**Triggers:** licensing/tier changes, CALM/Studio releases, first analyst evaluation, enterprise
+logos, funding, any move to managed hosting.
+
+## ElevenLabs · Voice & dev-framework | voice infrastructure moving into agents
+**What it is:** Best-in-class TTS/voice-cloning company that extended into **ElevenLabs Agents**
+(voice + chat agents for websites, apps and call centers). Genuinely strong voice quality and
+low synthesis latency; integrations exist for Salesforce, HubSpot, Zendesk, ServiceNow, Twilio,
+Vonage and Genesys, plus any API via MCP. Deloitte partnership (Nov 2025); powers IBM watsonx
+Orchestrate's contact-center agent assist voice layer.
+**Pricing:** credit-based. Business **$825/month for 11M credits (~13,750 minutes)**; additional
+minutes **$0.08/min**, **burst $0.16/min (2×) once concurrency is exceeded**; credits roll over
+only **two billing cycles** and are **forfeited on downgrade**. Enterprise is custom and adds
+SSO, HIPAA/BAA, SOC 2, GDPR ([ElevenLabs](https://elevenlabs.io/pricing/agents),
+[CloudTalk](https://www.cloudtalk.io/blog/elevenlabs-pricing/)).
+**Analyst standing:** **no CX analyst validation** — absent from the Gartner MQ for Conversational
+AI Platforms and the Forrester Wave for Customer Service. Its Gartner Peer Insights presence sits
+in **voice/AI-dubbing and text-to-speech** categories, not conversational AI for customer service.
+**Customers:** Freedom Forever (reported 90% cost reduction, 50% smaller human agent workforce).
+
+**Exploitable weaknesses**
+- 📡 **Voice infrastructure, not a CX platform.** Independent reviews describe it as a platform
+  where "someone has to design the agent, wire the telephony, and connect the CRM," with
+  **thin customer-service automation and limited production monitoring**, and engineering work
+  needed to integrate with existing contact-center tooling. No native WFM, QM, agent-assist or
+  case management ([CloudTalk](https://www.cloudtalk.io/blog/elevenlabs-voice-agent-review/),
+  [Cekura](https://www.cekura.ai/blogs/elevenlabs-review)).
+- 💲 **Credit-burn TCO unpredictability.** Long calls and the higher-cost multilingual models
+  chew quota faster than teams model, and many hit overage in month two or three; burst pricing
+  doubles the per-minute rate exactly when volume spikes. In the G2 corpus the word "expensive"
+  appears **171 times** and pricing complaints a further **148 times**; Trustpilot sits at **3.2**
+  on pricing opacity, credit burn on failed generations, and concurrency limits — against a
+  **4.5/5 across ~1,140 G2 reviews** for the product overall
+  ([G2](https://www.g2.com/products/elevenlabsio/reviews),
+  [Metadata Marketer](https://metadatamarketer.com/elevenlabs-intelligence-report/)).
+- 🛡️ **Governance depth for regulated CX is unproven.** Hallucination control is prompt-level
+  guidance ("answer from the knowledge base, else say I don't know") plus simulations and
+  pre-deployment tests — guardrails by instruction, not deterministic policy enforcement with an
+  audit trail. Voice cloning also puts consent/impersonation risk on the buyer's compliance
+  register ([ElevenLabs guidance](https://elevenlabs.io/agents)).
+
+**Kore.ai counter:** Never argue voice quality — concede it, and reframe the deal as everything
+that surrounds the voice: deterministic policy execution at runtime (ABL, zero-LLM mode for
+compliance paths), compile-time validation, cross-agent trace, 100% conversation evaluation,
+per-agent cost attribution, and 250+ CRM/ERP integrations out of the box. Position ElevenLabs
+as a **voice layer Kore.ai can consume**, not a platform that replaces one.
+**Trap Qs:** "Who builds, monitors and governs the agent once the voice sounds great — and what
+does that team cost?" · "For a regulated flow, is the policy enforced at runtime or written into
+a prompt, and what do you show an auditor?" · "What is your forecast cost when volume spikes past
+your concurrency limit at 2× per minute?"
+**Triggers:** CX platform build-out (WFM/QM/case management), pricing or credit-model changes,
+first analyst evaluation, enterprise CX logos, CCaaS partnerships, voice-cloning/consent incidents.
+
+## Ringg AI · Voice & dev-framework | early-stage, India-led voice agents
+**What it is:** Bengaluru-based AI voice-agent platform (voice, chat, WhatsApp, web), strongest in
+Hindi and Indian regional languages, with direct telephony integrations and fast setup. Vendor
+claims sub-400ms latency, 120K+ interactions/hour and up to 10,000 concurrent calls.
+**Recent:** **$5.5M Series A led by Arkam Ventures (Jan 2026)**; ~**$6.64M raised in total**.
+Reports **20+ customers** across India, the US and Saudi Arabia and ~**1.5M voice conversations
+per month**, ~75% resolved without a human. Funding is explicitly earmarked for reliability, lower
+cost and **on-prem/data-residency deployments** — i.e. those are roadmap, not shipped history
+([YourStory](https://yourstory.com/2026/01/voice-ai-startup-ringgai-seriesa-arkam-ventures),
+[Entrepreneur India](https://india.entrepreneur.com/news-and-trends/voice-ai-startup-ringg-ai-secures-usd-55-mn-series-a/502061)).
+**Pricing:** usage-based, roughly **$0.06–$0.10 per minute**; still sales-gated with no published
+enterprise list pricing.
+**Analyst standing:** **none** — not evaluated by Gartner, Forrester, Everest or IDC.
+**Customers (vendor-listed):** CRED, PharmEasy, Flipkart, PolicyBazaar, Groww, DCB Bank, Practo,
+Tabby, smallcase, Shiprocket.
+**G2:** 4.8/5, praised for regional-language coverage, cost and easy telephony setup — a small,
+recent review base weighted to SMB/mid-market, not enterprise CX.
+
+**Exploitable weaknesses**
+- 🔎 **Early-stage proof.** ~$6.6M total funding and 20+ customers against enterprise platforms
+  with hundreds of deployments; **zero independent analyst evaluation**; references concentrated
+  in India. Compliance posture (SOC 2, HIPAA) is **self-asserted on the vendor site**, and
+  on-prem/data residency is a funded roadmap item.
+- 📡 **SMB-tier integration surface.** Published connectors are Google Sheets, Typeform, Shopify,
+  Calendly, Notion and HubSpot plus a generic API request — no Salesforce/ServiceNow-class CRM
+  depth, no CCaaS/WFM/QM, and post-call execution (CRM write-back, follow-up, retry logic) lands
+  on the customer ([Ringg AI](https://www.ringg.ai/)).
+- 🛡️ **Orchestration and observability ceiling.** Reviewers report the agent **struggles with
+  interruptions and complex requests**, that **complex call branching and multi-step conditional
+  logic are hard to configure**, and that **analytics are too shallow to see where calls break
+  down** ([G2](https://www.g2.com/products/ringg-ai/reviews)).
+
+**Kore.ai counter:** Concede price-per-minute and Indic-language coverage — then move the
+conversation to what an enterprise actually buys: multi-step orchestration that survives
+interruption and system hand-offs, 250+ CRM/ERP integrations, deterministic compliance paths with
+an audit trail, cross-agent trace and 100% conversation evaluation, plus Leader placement in the
+Gartner MQ 2025 and Forrester Wave Q2 2026 and global enterprise references. Where the buyer is
+cost-led, price the rework: a cheap per-minute agent that cannot branch or write back to the
+system of record becomes a second integration project.
+**Trap Qs:** "When the customer interrupts mid-flow or the request spans three back-end systems,
+what happens?" · "Who updates the CRM and schedules the follow-up after the call ends?" ·
+"Which independent analyst has evaluated the platform, and how many enterprise references exist
+outside India?"
+**Triggers:** new funding, first analyst evaluation, on-prem/data-residency GA, US/Middle East
+enterprise logos, published enterprise pricing, SOC 2 / HIPAA attestation evidence, CCaaS or
+CRM partnerships.

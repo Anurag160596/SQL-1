@@ -11,7 +11,7 @@ so each digest is grounded in who we are, who we track, and how we frame the mar
 | `00-index.md` | This file. |
 | `kore-ai.md` | Kore.ai's own positioning: platform, ABL, analyst standing, key terms. |
 | `competitors.md` | **Living battlecards** for all 16 competitors, built to undercut. |
-| `product-gaps-slide-content.md` | Deck-ready **Kore.ai vs Rasa / ElevenLabs / Ringg AI** product-gap columns, three points a side, each tagged with its evidence source. |
+| `product-gaps-slide-content.md` | Deck-ready **Kore.ai vs Rasa / ElevenLabs / Ringg AI** gap columns. Part 1 = platform and commercial posture. Part 2 = **agentic architecture** vs Artemis (orchestration primitives, shared memory, governed tools, trace), sourced entirely from vendor documentation. |
 
 ## Battlecard format (competitors.md)
 

@@ -1,5 +1,11 @@
 # Product Gaps — slide content (Kore.ai vs Rasa · ElevenLabs · Ringg AI)
 
+**Two parts.** *Part 1* compares platform and commercial posture (validation, cost, residency,
+operating layer). *Part 2* compares **agentic architecture** — orchestration primitives, shared
+memory, governed tool use, and trace — measured against Kore.ai's Artemis generation. Part 2 is
+the sharper axis for a technical or architecture audience, and every claim in it comes from a
+vendor's own documentation.
+
 Deck-ready copy for the **Strategic Positioning** layout: an eyebrow, an action title,
 a strategic frame, then two columns — Kore.ai (green) and the competitor (grey), three
 numbered points each, every point stamped with its evidence source.
@@ -178,3 +184,112 @@ schedules the follow-up after the call ends?"
 G2 and Gartner Peer Insights block automated page retrieval, so their content reached this
 document through search-result extracts — re-check the live pages before any customer-facing
 use, and confirm current review counts and ratings.
+
+---
+
+# Part 2 · Agentic capability gaps
+
+Part 1 compares platforms. This part compares **agentic architecture** — what happens when one
+customer request has to be worked by several agents, across several systems, under a policy that
+must hold. It is the sharper axis, because it is where Kore.ai's Artemis generation is furthest
+ahead and where the differences are checkable in each vendor's own documentation.
+
+## The Kore.ai yardstick (Artemis)
+
+| Capability | What Artemis provides |
+|---|---|
+| **Orchestration primitives** | **Six**: supervisor, delegation, handoff, fan-out, escalation, and agent-to-agent federation |
+| **Memory** | **Dual-brain** — agentic reasoning and deterministic flows run **in parallel through shared memory**, in one language, under one runtime |
+| **Authoring** | **ABL**, a compiled, declarative language: agents, systems and workflows are defined, validated and governed as reviewable blueprints |
+| **Topology design** | **Arch** translates business objectives into production-ready ABL, designs the agent topology, and refines agents from real production traces |
+| **Governance** | Enforced architecturally: every decision, path and outcome logged, traced and analysed in real time; deterministic constraints enforced by the platform, not the model |
+| **Reach** | 40+ voice and digital channels, 300+ integrations |
+
+Source: [Kore.ai — Artemis launch](https://www.kore.ai/news/kore-ai-launches-artemis-the-new-generation-of-the-kore-ai-agent-platform-for-building-governing-and-optimizing-enterprise-ai).
+⚠️ **Reconcile before use:** the launch release says **six** primitives; the existing internal
+strategic-positioning slide says **five**. Confirm which is current with product marketing.
+
+---
+
+## Slide 1A · Kore.ai vs Rasa — agentic
+
+**Action title:** One assistant calling out is not a multi-agent system
+**Strategic frame:** Rasa orchestrates. The question is what it orchestrates: tools and external
+agents from a single assistant, or a governed topology of agents working a request together.
+
+> **Do not say Rasa is "just an NLU framework."** It is outdated. Rasa 3.14 ships **A2A**, **MCP**,
+> process calling, and an orchestrator that maintains state. Concede that, then go to topology,
+> telemetry, and where policy is enforced.
+
+| | **Kore.ai** — ARTEMIS | **Rasa** — SINGLE-ASSISTANT ORCHESTRATOR |
+|---|---|---|
+| **01** | **Six orchestration primitives.** Supervisor, delegation, handoff, fan-out, escalation and A2A federation, so one request can be decomposed across agents with a supervisor retaining control. `VENDOR` | **Orchestration outward, not a topology.** Rasa's orchestrator directs control between flows, MCP tools, A2A agents, RAG or fallback, and maintains state. Its orchestration page names **no supervisor, delegation, fan-out or escalation pattern**. It is one assistant calling out, not several agents working a request in parallel. `VENDOR` |
+| **02** | **Shared memory across the topology.** Agentic reasoning and deterministic flows run in parallel over shared memory, in one language, under one runtime. `VENDOR` | **State per assistant.** Rasa tracks short memory, active state and persistent knowledge for the assistant. There is no documented shared working memory across a set of collaborating agents. `VENDOR` |
+| **03** | **Telemetry is the platform.** Every decision, path and outcome logged, traced and analysed by AI in real time, with cross-agent trace trees. `VENDOR` | **Telemetry is a stack you assemble.** Tracing requires standing up Jaeger, an OpenTelemetry Collector or Langfuse and wiring it, and **metrics only emit once tracing is configured**. Real capability, but it is your integration project and your on-call. `VENDOR` |
+| **04** | **Policy compiled, then enforced by the runtime.** ABL validates the topology before deploy; deterministic constraints are enforced by the platform, not left to the model. `VENDOR` | **Policy enforced inside flows.** Business rules hold within guided flows, but there is no compiled contract spanning agents, tools and handoffs that fails at build time. `VENDOR` |
+
+**Trap questions:** "When one request needs three agents working in parallel with a supervisor
+holding the outcome, what builds that?" · "Who stands up and runs your tracing backend, and what
+happens to metrics if it is not configured?" · "Where is a cross-agent policy validated — at build
+time, or the first time it runs in production?"
+
+---
+
+## Slide 2A · Kore.ai vs ElevenLabs — agentic
+
+**Action title:** A handoff is one primitive, not an orchestration layer
+**Strategic frame:** ElevenLabs agents can pass a call to another agent. They cannot delegate a
+task and get the answer back. That single architectural fact sets the ceiling.
+
+> **The strongest technical point on any of these slides, and it is quoted from their own docs.**
+
+| | **Kore.ai** — ARTEMIS | **ElevenLabs** — AGENT TREE, ONE-WAY |
+|---|---|---|
+| **01** | **Six primitives, including delegation and fan-out.** A supervisor can dispatch work to several agents at once, retain control, and assemble the result. `VENDOR` | **One primitive: handoff.** `transfer_to_agent` moves the conversation to a child agent permanently. The docs state the transfer is **"a conversation takeover, not a delegated subtask"** and **"the parent agent doesn't receive results back."** No delegation, no fan-out, no supervisor that keeps control. `VENDOR` |
+| **02** | **Parallel work on one request.** Fan-out queries several systems or agents simultaneously and reconciles the answers. `VENDOR` | **Sequential by construction.** With no fan-out, a request spanning three systems is worked in sequence inside one agent, or handed away and gone. `VENDOR` |
+| **03** | **Shared memory, not a transcript.** Agents share working memory under one runtime, so context is structured state rather than replayed dialogue. `VENDOR` | **Context is the transcript.** The full transcript, language and audio settings inherit on transfer, and transfer tool calls are stripped from the child's view. Useful, but it is conversation history, not shared working state. `VENDOR` |
+| **04** | **Compiled and governed before deploy.** ABL blueprints are validated and governed; the runtime enforces deterministic constraints. `VENDOR` | **Configured, then judged at run time.** Behaviour lives in prompts, a visual workflow builder, and pre-deployment simulations. The model decides at run time whether the rule applies. `VENDOR` |
+
+**Trap questions:** "Can a supervisor agent delegate a task, keep control, and receive the result —
+or does the conversation simply leave?" · "How do three systems get queried at once on a single
+request?" · "When a compliance step must run every time, what enforces it — the platform, or the
+model's judgement in that moment?"
+
+---
+
+## Slide 3A · Kore.ai vs Ringg AI — agentic
+
+**Action title:** A prompt and a webhook is not an agent architecture
+**Strategic frame:** Ringg automates a call well. Agentic work means decomposing a request across
+agents and systems, holding state, and proving what happened.
+
+> **Phrase as "not documented," not "does not exist."** These are absences from Ringg's developer
+> docs as of August 2026. Ask them to point at the documentation.
+
+| | **Kore.ai** — ARTEMIS | **Ringg AI** — SINGLE-PROMPT VOICE AGENT |
+|---|---|---|
+| **01** | **Six orchestration primitives and a designed topology.** Arch translates business objectives into ABL and designs the agent topology. `VENDOR` | **No documented multi-agent capability.** The developer docs cover prompt variables, knowledge bases, call-history APIs and webhooks. **No agent transfer, no multi-agent orchestration, and no MCP** appear in them. `VENDOR` |
+| **02** | **Governed tool layer.** 300+ integrations with typed, validated tool contracts compiled into the blueprint. `VENDOR` | **Tool use is webhook-shaped.** A generic API request action plus a small set of SaaS connectors (Google Sheets, Typeform, Shopify, Calendly, Notion, HubSpot). Not a governed tool layer with typing, auth and build-time validation. `VENDOR` |
+| **03** | **Shared memory across agents and sessions.** `VENDOR` | **No documented memory across sessions.** Nothing in the docs describes persistent state carried between conversations. `VENDOR` |
+| **04** | **Evaluation and trace as platform features.** Every decision logged, traced and analysed in real time; agents refined from production traces. `VENDOR` | **No documented evaluation framework or model choice.** Observability is call-history APIs and webhooks for call started, completed, recording and analysis. `VENDOR` |
+
+**Trap questions:** "Show us the documentation for agent-to-agent orchestration and tool calling." ·
+"What does the agent remember about this customer from last week?" · "How do you evaluate agent
+behaviour before a release, and what does the trace of a failed call look like?"
+
+---
+
+## Sourcing note for Part 2
+
+Every claim in Part 2 comes from a **vendor's own product documentation or launch material** —
+Kore.ai's Artemis release, Rasa's orchestration page and Rasa Pro tracing docs, ElevenLabs' agent
+transfer and Agents docs, and Ringg's developer docs. No rival-authored comparison content is used
+anywhere in this part.
+
+- [Kore.ai — Artemis launch](https://www.kore.ai/news/kore-ai-launches-artemis-the-new-generation-of-the-kore-ai-agent-platform-for-building-governing-and-optimizing-enterprise-ai)
+- [Rasa — AI orchestration](https://rasa.com/orchestration) · [Rasa Pro tracing](https://rasa.com/docs/pro/improve/tracing/) · [observability metrics](https://rasa.com/docs/pro/improve/observability-metrics/) · [A2A and MCP](https://rasa.com/blog/orchestrating-a2a-and-mcp-with-rasa)
+- [ElevenLabs — agent transfer](https://elevenlabs.io/docs/eleven-agents/customization/tools/system-tools/agent-transfer) · [Agents platform overview](https://elevenlabs.io/docs/agents-platform/overview)
+- [Ringg AI — developer docs](https://docs.ringg.ai/)
+
+**Absence claims** ("no supervisor pattern named", "not documented") mean the capability is absent
+from the vendor's published documentation as of August 2026. Put it to them as a question.

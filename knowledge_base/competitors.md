@@ -474,8 +474,20 @@ recent review base weighted to SMB/mid-market, not enterprise CX.
 **Exploitable weaknesses**
 - 🔎 **Early-stage proof.** ~$6.6M total funding and 20+ customers against enterprise platforms
   with hundreds of deployments; **zero independent analyst evaluation**; references concentrated
-  in India. Compliance posture (SOC 2, HIPAA) is **self-asserted on the vendor site**, and
-  on-prem/data residency is a funded roadmap item.
+  in India.
+- 🛡️ **Data residency and compliance are roadmap, not shipped.** *The decisive gap for regulated
+  buyers.* Ringg's **own Series A announcement (Jan 2026)** states the capital is going into
+  research and model development **to enable on-premise deployments for large enterprises that
+  require higher levels of control, stricter compliance standards and data residency assurances**,
+  and to **"eliminate dependence on third-party APIs"** — i.e. today there is no on-prem option,
+  no stated regional data residency, and customer conversation data transits third-party model,
+  STT and TTS APIs ([YourStory](https://yourstory.com/2026/01/voice-ai-startup-ringgai-seriesa-arkam-ventures),
+  [Ringg AI](https://www.ringg.ai/blog/ringg-ai-announcing-our-5-5-millon-usd-series-a)).
+  Compliance is **self-asserted marketing copy** — "SOC 2 compliance", encryption and data
+  anonymization on the site, HIPAA on the healthcare page — with **no public trust centre, no
+  SOC 2 Type II report, no ISO 27001, no PCI DSS, no HITRUST, no FedRAMP and no published DPDP or
+  GDPR position** found as of Aug 2026. For a bank, insurer or hospital, that is an unclearable
+  procurement gate, not a feature gap.
 - 📡 **SMB-tier integration surface.** Published connectors are Google Sheets, Typeform, Shopify,
   Calendly, Notion and HubSpot plus a generic API request — no Salesforce/ServiceNow-class CRM
   depth, no CCaaS/WFM/QM, and post-call execution (CRM write-back, follow-up, retry logic) lands
@@ -486,16 +498,24 @@ recent review base weighted to SMB/mid-market, not enterprise CX.
   down** ([G2](https://www.g2.com/products/ringg-ai/reviews)).
 
 **Kore.ai counter:** Concede price-per-minute and Indic-language coverage — then move the
-conversation to what an enterprise actually buys: multi-step orchestration that survives
-interruption and system hand-offs, 250+ CRM/ERP integrations, deterministic compliance paths with
-an audit trail, cross-agent trace and 100% conversation evaluation, plus Leader placement in the
-Gartner MQ 2025 and Forrester Wave Q2 2026 and global enterprise references. Where the buyer is
-cost-led, price the rework: a cheap per-minute agent that cannot branch or write back to the
-system of record becomes a second integration project.
-**Trap Qs:** "When the customer interrupts mid-flow or the request spans three back-end systems,
-what happens?" · "Who updates the CRM and schedules the follow-up after the call ends?" ·
-"Which independent analyst has evaluated the platform, and how many enterprise references exist
-outside India?"
-**Triggers:** new funding, first analyst evaluation, on-prem/data-residency GA, US/Middle East
-enterprise logos, published enterprise pricing, SOC 2 / HIPAA attestation evidence, CCaaS or
-CRM partnerships.
+conversation to what an enterprise actually buys. On residency and governance the contrast is
+binary, so lead with it in any regulated deal: Kore.ai deploys in **public cloud, sovereign
+regions, private cloud or on-premises with data residency by region**, holds **SOC 2 Type II,
+ISO 27001, PCI DSS, HITRUST, FedRAMP Moderate and GDPR**, signs **BAAs**, publishes a
+[public trust centre](https://trust.kore.ai/), and supports **bring-your-own-LLM** so inference
+runs on an internal model instead of a third-party API — with PII tokenization, tenant isolation
+and immutable audit trails on every agent action. Then add multi-step orchestration that survives
+interruption, 250+ CRM/ERP integrations, cross-agent trace, 100% conversation evaluation, and
+Leader placement in the Gartner MQ 2025 and Forrester Wave Q2 2026. Where the buyer is cost-led,
+price the rework: a cheap per-minute agent that cannot keep data in-country or write back to the
+system of record becomes a second project.
+**Trap Qs:** "Where does our customer audio and PII physically live, and which third-party APIs
+does it pass through before you answer?" · "Can we see the SOC 2 Type II report and the trust
+centre, or is the claim only on the website?" · "When is on-premise generally available, with
+named production references on it?" · "When the customer interrupts mid-flow or the request spans
+three back-end systems, what happens?" · "Which independent analyst has evaluated the platform,
+and how many enterprise references exist outside India?"
+**Triggers:** on-prem/data-residency GA and its first production reference, **SOC 2 Type II /
+ISO 27001 / DPDP attestation evidence or a published trust centre**, proprietary in-house model
+replacing third-party APIs, new funding, first analyst evaluation, US/Middle East enterprise
+logos, published enterprise pricing, CCaaS or CRM partnerships.

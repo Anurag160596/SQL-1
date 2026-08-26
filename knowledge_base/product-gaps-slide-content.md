@@ -6,7 +6,12 @@ numbered points each, every point stamped with its evidence source.
 
 **Source tags used:** `G2` · `PEER REVIEWS` (Gartner Peer Insights, TrustRadius,
 SoftwareAdvice) · `PUBLIC NEWS` · `VENDOR` (competitor's own site/pricing page) ·
+`TRUST CENTRE` (published certifications and attestation reports) ·
 `GARTNER` / `FORRESTER` (analyst evaluations).
+
+**Absence claims.** Where a slide says a certification or report was not found, that is
+absence of published evidence as of August 2026, not proof it does not exist. Phrase it that
+way in the room, and make it a question to the vendor rather than an accusation.
 
 **On Reddit:** Reddit blocks automated retrieval, so no claim here is tagged `REDDIT`.
 Every gap below is anchored to a source that was actually retrieved. If a Reddit tag is
@@ -67,7 +72,7 @@ forecast cost when volume spikes past your concurrency limit at 2× per minute?"
 ## Slide 3 · Kore.ai vs Ringg AI
 
 **Eyebrow:** STRATEGIC POSITIONING ▪ KORE.AI VS RINGG AI
-**Action title:** A low price per minute is not an enterprise deployment
+**Action title:** A low price per minute does not clear a regulated procurement gate
 **Strategic frame:** Enterprises buy agents that survive interruption, span back-end
 systems, and leave an auditable trail — proven at scale, by independent evaluation.
 
@@ -76,14 +81,19 @@ systems, and leave an auditable trail — proven at scale, by independent evalua
 
 | | **Kore.ai** — ENTERPRISE-GRADE, AI-NATIVE PLATFORM | **Ringg AI** — EARLY-STAGE VOICE AGENTS |
 |---|---|---|
-| **01** | **Proven at enterprise scale, independently.** Leader across six analyst evaluations — Gartner MQ 2025, two Forrester Waves, two Everest PEAK matrices and IDC MarketScape — with global enterprise deployments. `GARTNER` `FORRESTER` `EVEREST` `IDC` | **Early-stage proof.** $5.5M Series A led by Arkam (Jan 2026), ~$6.6M raised in total, 20+ customers and ~1.5M conversations/month, concentrated in India. No Gartner, Forrester, Everest or IDC evaluation. SOC 2 and HIPAA are self-asserted; on-prem and data residency are funded roadmap, not shipped history. `PUBLIC NEWS` `VENDOR` |
-| **02** | **Integrated into the systems of record.** 80+ automation connectors and 250+ CRM/ERP integrations, with prebuilt regulated-industry applications — the work after the call is part of the platform. `FORRESTER` `IDC` | **SMB-tier integration surface.** Published connectors are Google Sheets, Typeform, Shopify, Calendly, Notion and HubSpot plus a generic API request — no Salesforce/ServiceNow-class CRM depth, no CCaaS, WFM or QM. CRM write-back, follow-ups and retry logic land on the customer. `VENDOR` `PEER REVIEWS` |
-| **03** | **Orchestration and observability that hold under load.** Multi-step flows across systems with cross-agent trace trees, 100% conversation evaluation and voice-native barge-in handling. `EVEREST` `FORRESTER` | **Orchestration and observability ceiling.** Reviewers report the agent struggles with interruptions and complex requests, that complex call branching and multi-step conditional logic are hard to configure, and that analytics are too shallow to show where calls break down. `G2` `PEER REVIEWS` |
+| **01** | **Proven at enterprise scale, independently.** Leader across six analyst evaluations — Gartner MQ 2025, two Forrester Waves, two Everest PEAK matrices and IDC MarketScape — with global enterprise deployments. `GARTNER` `FORRESTER` `EVEREST` `IDC` | **Early-stage proof.** $5.5M Series A led by Arkam (Jan 2026), ~$6.6M raised in total, 20+ customers and ~1.5M conversations/month, concentrated in India. No Gartner, Forrester, Everest or IDC evaluation. `PUBLIC NEWS` `VENDOR` |
+| **02** | **Your data stays where the regulator requires.** Public cloud, sovereign regions, private cloud or on-premises, with data residency by region. SOC 2 Type II, ISO 27001, PCI DSS, HITRUST, FedRAMP Moderate and GDPR, BAAs signed, and a public trust centre. Bring-your-own-LLM keeps inference off third-party APIs, with PII tokenization and immutable audit trails. `VENDOR` `TRUST CENTRE` | **Data residency is roadmap, not shipped.** Ringg's own Series A announcement says the capital funds work to enable on-premise deployments for enterprises needing stricter compliance and data residency assurances, and to eliminate dependence on third-party APIs. So today there is no on-prem option, no stated regional residency, and customer audio and PII transit third-party model, STT and TTS APIs. `PUBLIC NEWS` `VENDOR` |
+| **03** | **Compliance you can evidence in procurement.** Attestation reports and certifications are published and reviewable before a contract, not asserted on a web page. `TRUST CENTRE` | **Compliance is self-asserted.** SOC 2, encryption and data anonymization appear as marketing copy on the site, HIPAA on the healthcare page. No public trust centre, SOC 2 Type II report, ISO 27001, PCI DSS, HITRUST, FedRAMP, or published DPDP or GDPR position found as of August 2026. `VENDOR` |
+| **04** | **The platform does the work after the call.** 80+ connectors and 250+ CRM and ERP integrations, multi-step flows across systems, cross-agent trace trees and 100% conversation evaluation. `FORRESTER` `IDC` `EVEREST` | **The platform stops at the call.** Published connectors are Google Sheets, Typeform, Shopify, Calendly, Notion and HubSpot plus a generic API. Reviewers report the agent struggles with interruptions and complex requests, complex branching is hard to configure, and analytics are too shallow to show where calls break down. `G2` `PEER REVIEWS` `VENDOR` |
 
-**Trap questions:** "When the customer interrupts mid-flow or the request spans three
-back-end systems, what happens?" · "Who updates the CRM and schedules the follow-up after
-the call ends?" · "Which independent analyst has evaluated the platform, and how many
-enterprise references exist outside India?"
+**Three-point variant.** If the slide must hold three rows, merge 02 and 03 into a single
+governance point (residency roadmap plus self-asserted compliance) and keep 01 and 04.
+
+**Trap questions:** "Where does our customer audio and PII physically live, and which
+third-party APIs does it pass through before you answer?" · "Can we see the SOC 2 Type II
+report and the trust centre, or is the claim only on the website?" · "When is on-premise
+generally available, with named production references on it?" · "Who updates the CRM and
+schedules the follow-up after the call ends?"
 
 ---
 
@@ -107,11 +117,14 @@ enterprise references exist outside India?"
 - [YourStory — Ringg AI raises $5.5M Series A](https://yourstory.com/2026/01/voice-ai-startup-ringgai-seriesa-arkam-ventures)
 - [Entrepreneur India — Ringg AI Series A](https://india.entrepreneur.com/news-and-trends/voice-ai-startup-ringg-ai-secures-usd-55-mn-series-a/502061)
 - [Ringg AI — product site](https://www.ringg.ai/) *(channels, integrations, compliance and customer claims)*
+- [Ringg AI — Series A announcement](https://www.ringg.ai/blog/ringg-ai-announcing-our-5-5-millon-usd-series-a) *(on-prem, data residency and third-party API dependence, in the vendor's own words)*
 - [G2 — Ringg AI reviews](https://www.g2.com/products/ringg-ai/reviews)
 
 **Kore.ai position**
 - Gartner MQ for Conversational AI Platforms 2025 (Leader — Google and Kore.ai)
 - Forrester Wave: Conversational AI Platforms for Customer Service, Q2 2026 (Leader — Kore.ai, NiCE Cognigy, Omilia)
+- [Kore.ai Trust Center](https://trust.kore.ai/) — published certifications and attestation reports
+- Kore.ai deployment and compliance posture: public cloud, sovereign regions, private cloud and on-premises with data residency by region; SOC 2 Type II, ISO 27001, PCI DSS, HITRUST, FedRAMP Moderate, GDPR, BAAs; bring-your-own-LLM
 - `knowledge_base/kore-ai.md` for the internal capability claims used in the green column
 
 **Verification status:** figures were retrieved in August 2026 from the sources above.

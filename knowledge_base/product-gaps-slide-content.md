@@ -272,6 +272,66 @@ customer-facing use case — there ElevenLabs is genuinely strong, and the argum
 
 ---
 
+## Slide 2C · Kore.ai Artemis vs ElevenLabs — extended talk track
+
+Ammunition beyond Slides 2, 2A and 2B, organised by durability. Use the **architectural** gaps in
+any deal; they are design decisions, not backlog items. Use the **timing** gaps now and re-check
+them each quarter, because ElevenLabs is closing gaps fast.
+
+> ⚠️ **Correction that costs us a point.** ElevenLabs now offers **on-premise, on-device and VPC
+> deployment**. The full ElevenAgents runtime runs **in your VPC, connected to your own LLM,
+> telephony and retrieval**, with all text, audio and call data staying inside your infrastructure.
+> The "their residency is storage-only" attack **only applies to the standard multi-tenant cloud
+> service.** Against a buyer willing to take a private deployment, that argument is dead. Do not
+> lead with it. ([ElevenLabs private deployments](https://elevenlabs.io/docs/eleven-api/private-deployment/overview))
+
+### A · Architectural — durable, worth building a slide on
+
+| # | Gap | Artemis | ElevenLabs | Source |
+|---|---|---|---|---|
+| **A1** | **Model routing and cost architecture** | Agents declare **tiers, not vendors**. Routing picks the model per task by cost, speed and complexity: fast models for the simple ~80%, reasoning models for the complex ~20%. | Model is configured **statically at the agent level**. No dynamic per-task routing, no tiering, and **no documented fallback** — so a model outage is an agent outage, and every turn pays the price of your most expensive turn. | `VENDOR DOCS` |
+| **A2** | **Orchestration primitives** | Six: supervisor, delegation, handoff, fan-out, escalation, A2A federation. | One: handoff. Their docs: transfer is **"a conversation takeover, not a delegated subtask"** and **"the parent agent doesn't receive results back."** | `VENDOR DOCS` |
+| **A3** | **A2A federation** | First-class primitive — agents collaborate across organisational boundaries. | **MCP yes, A2A not documented.** Tools are connected; cross-organisation agent federation is not addressed. | `VENDOR DOCS` |
+| **A4** | **Authoring artifact** | **ABL** — a compiled, declarative language. The topology is validated and governed as a reviewable blueprint before deploy. | **Configuration, not a compiled artifact.** Dashboard settings, prompts, a visual workflow builder and API calls. No build-time validation across the whole topology, and no Git-native release engineering or pre-flight gate documented. | `VENDOR DOCS` |
+| **A5** | **Topology design and self-improvement** | **Arch** translates business objectives into production-ready ABL, designs the agent topology, and **continuously refines agents from real production traces**. | **No equivalent.** Design is human configuration; there is no architect layer that proposes or refines the topology from what happened in production. | `VENDOR DOCS` |
+| **A6** | **Knowledge governance** | Permission-scoped retrieval with **citations** and **stale-knowledge tracking**. | Knowledge base is documents from files, URLs or text, with **workspace-level** permissions and per-agent silos. **No documented per-end-user permission-scoped retrieval** — the control is which agent sees which document, not which *caller* is entitled to which answer. | `VENDOR DOCS` |
+
+### B · Timing — true today, re-check every quarter
+
+| # | Gap | Why it matters now | Source |
+|---|---|---|---|
+| **B1** | **Azure is not available for private deployment until later H2 2026.** Private deployments support AWS and GCP only. | Decisive for a Microsoft-standardised enterprise. Artemis **launched on Microsoft Azure with native integration to Microsoft Foundry and Agent 365**. If the buyer runs on Azure and needs data in their own tenant, ElevenLabs cannot serve them this year. | `VENDOR DOCS` |
+| **B2** | **The private-deployment architecture is behind an NDA.** Full technical documentation is "available to authorized customers only." | The buyer cannot evaluate the deployment architecture, its limits, or which features are unavailable **before committing**. Ask what is missing in a private deployment versus the cloud service, and get it in writing. | `VENDOR DOCS` |
+| **B3** | **Cloud-service residency is storage-scoped and Enterprise-only.** Processing "may nevertheless occur outside of the selected location"; regional LLM availability varies; custom LLM and webhook integrations may require out-of-region processing. | Still valid **only** if the buyer is taking the standard cloud service. Superseded by a private deployment. | `VENDOR DOCS` |
+| **B4** | **Concurrency ceiling and 2× burst.** Business tier at $990/month carries 40 concurrent calls; burst allows 3× concurrency with the excess at double rate; Enterprise concurrency unpublished. | A volume spike is also a price spike. Get the contracted concurrency and the burst rate in the commercials. | `VENDOR PRICING` |
+| **B5** | **Reach and ecosystem.** Voice, chat, email and WhatsApp; integrations via MCP, named CRMs and 200+ telephony providers. | Artemis: **40+ voice and digital channels, 300+ integrations**, plus a marketplace of prebuilt agents and templates. | `VENDOR` |
+
+### The three questions to actually ask
+
+1. **"When a simple intent and a complex one hit the same agent, do they use the same model?"**
+   Yes is the answer, and it means the buyer pays reasoning-model prices for every "what is my balance."
+2. **"Can a supervisor agent delegate a task, keep control, and receive the result?"**
+   No. The conversation leaves and does not come back.
+3. **"We are an Azure shop and our data stays in our tenant. When can you deploy there?"**
+   Later in H2 2026, on their own documentation.
+
+### What NOT to claim about ElevenLabs
+
+This card has been corrected four times. Every one of these was in an earlier draft and is wrong:
+
+| Retired claim | Reality |
+|---|---|
+| "No on-prem or VPC — SaaS only" | Full ElevenAgents runtime deploys to your VPC, on-prem, or on-device. |
+| "No agent assist, QA scoring or supervisor monitoring" | All marketed, with a dedicated product page. |
+| "Governance unproven, guardrails are just prompts" | Trust centre, SOC 2, GDPR, HIPAA BAAs, Zero Retention Mode. |
+| "Business is $825/month for 11M credits" | $990/month for 12,375 minutes. |
+
+**Standing instruction:** re-verify this card against elevenlabs.io product pages before every
+customer-facing use. Four corrections in one research pass is the rate this vendor moves at.
+
+
+---
+
 # Part 2 · Agentic capability gaps
 
 Part 1 compares platforms. This part compares **agentic architecture** — what happens when one

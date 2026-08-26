@@ -504,7 +504,34 @@ claimed in a **rival's** security review but are **not** stated on ElevenLabs' o
   support and scheduling**. Kore.ai ships **Banking, Healthcare, Retail, IT, HR and Recruiting**
   applications with regulated workflows and integrations. On ElevenLabs, the vertical journey and
   its compliance logic are the customer's build.
-- 🛡️ **Residency covers storage, and only on Enterprise.** Their docs: isolated environments in
+- 🛡️ **Deployment: ⚠️ they now do on-prem, VPC and on-device — this attack is largely spent.**
+  *Corrected Aug 2026.* The **full ElevenAgents runtime runs in the customer's VPC, connected to
+  their own LLM, telephony and retrieval**, with text, audio and call data staying inside their
+  infrastructure; TTS and Scribe also deploy standalone on SageMaker or Vertex
+  ([ElevenLabs](https://elevenlabs.io/docs/eleven-api/private-deployment/overview)). Two usable
+  angles survive: **Azure is not supported until later H2 2026** (AWS and GCP only) — decisive
+  against a Microsoft-standardised buyer, since **Artemis launched on Azure with native Microsoft
+  Foundry and Agent 365 integration** — and the **full private-deployment documentation is behind
+  an NDA** ("available to authorized customers only"), so the buyer cannot evaluate the architecture
+  or learn which features are unavailable before committing.
+- 🧠 **Static model per agent — no tiering, no routing, no documented fallback.** *The most durable
+  architectural gap.* ElevenLabs' docs configure the model **statically at the agent level**, with
+  no dynamic per-task routing by cost, speed or complexity and no documented fallback
+  ([ElevenLabs](https://elevenlabs.io/docs/agents-platform/customization/llm/custom-llm)). Kore.ai
+  agents declare **tiers, not vendors**, routing fast models to the simple ~80% and reasoning models
+  to the complex ~20%. Consequence for the buyer: every turn is priced at the most expensive turn,
+  and a model provider outage is an agent outage.
+- 🧠 **No A2A federation and no architect layer.** MCP connects tools; **A2A is not documented**, so
+  cross-organisation agent federation is unaddressed. There is also no equivalent to **Arch** —
+  nothing translates business objectives into a validated blueprint, designs the topology, or
+  refines agents from production traces.
+- 🔐 **Knowledge governance is workspace-scoped, not caller-scoped.** The knowledge base is documents
+  from files, URLs or text, with **workspace-level permissions** and per-agent silos. **No documented
+  per-end-user permission-scoped retrieval** — the control is which *agent* sees which document, not
+  which *caller* is entitled to which answer. Kore.ai does permission-scoped retrieval with citations
+  and stale-knowledge tracking. For banking or healthcare, that distinction is the whole control.
+- 🛡️ **Cloud-service residency covers storage, and only on Enterprise.** *Applies only if the buyer
+  takes the standard cloud service — superseded by a private deployment.* Their docs: isolated environments in
   **EU, India and Singapore** with **US default**, and **"Data residency is an exclusive feature
   available to ElevenLabs' Enterprise customers."** Critically, **"processing may nevertheless
   occur outside of the selected location"** unless Zero Retention Mode is configured; **regional
